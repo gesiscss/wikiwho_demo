@@ -4,48 +4,39 @@ import pandas as pd
 from .api import API, DataView
 
 
+
 class WikipediaDV(DataView):
 
-    def get_pageviews(self, article_name: str, granularity: str = 'monthly'):
-        """Get pageview counts for an article
+    def get_page(self, page: Union[int, str]) -> pd.Series:
+        """Get pageview counts for an page
 
         Args:
-            article_name (str): The title of any article in the specified project. Any spaces should be
-                replaced with underscores. It also should be URI-encoded, so that non-URI-safe characters 
-                like %, / or ? are accepted. Example: Are_You_the_One%3F
-            granularity (str, optional): The time unit for the response data. As of today, the only supported granularity 
-            for this endpoint is `daily` and `monthly`.
+            page_id (Union[int, str]): Description
 
         Returns:
-            dict: ageview counts for an article
+            pd.Series: info of the page
+
         """
 
-        return pd.DataFrame(data=self.api.get_pageviews(article_name, granularity)['items'])
+        res = self.api.get_page(page)
 
+        pages = res['query']['pages']
+        if len(pages) == 0:
+            raise Exception('Article Not Found')
 
+        elif len(pages) > 1:
+            raise Exception('Several pages found')
 
-def getArticleName(article_id):
-    session = requests.session()    
-    url ='https://en.wikipedia.org/w/api.php?action=query&pageids=%i&format=json'%(article_id)
-    
-    tries = 5
-    while tries >= 0:
-        try :
-            res = session.get(url).json()
-            res = res['query']['pages'][str(article_id)]['title']
-            return res
-        
-        except (KeyError):
-            if tries == 0:
-                print (res)        
-                print ('API call for function getArticleName was unsuccessful')
-                return -1
-                raise
-            else:
-                time.sleep(5) 
-                tries -= 1
-                continue
-    
+        page_dict = next(iter(pages.values()))
+
+        return pd.Series({
+            'page_id': page_dict['pageid'],
+            'title': page_dict['title'],
+            'ns': page_dict['ns'],
+            'to': res['query']['normalized'][0]['to'],
+            'from': res['query']['normalized'][0]['from'],
+        })
+
 
 
 class WikipediaAPI(API):
@@ -84,22 +75,21 @@ class WikipediaAPI(API):
                          attempts=attempts)
         self.base = f'{self.base}w/api.php?'
 
+    def get_page(self, page_id: Union[int, str]) -> dict:
+        """Get pageview counts for an page
 
-    def get_article(self, article_id: Union[int, str]) -> dict:
-        """Get pageview counts for an article
-        
         Args:
-            article_id (int): Description
-        
+            page_id (int): Description
+
         Returns:
-            dict: ageview counts for an article
+            dict: ageview counts for an page
 
         """
 
-        if isinstance(article_id, int):
-            url =f'{self.base}action=query&pageids={article_id}&format=json'
-        elif isinstance(article_id, str):
-            url =f'{self.base}action=query&titles={article_id}&format=json'
+        if isinstance(page_id, int):
+            url = f'{self.base}action=query&pageids={page_id}&format=json'
+        elif isinstance(page_id, str):
+            url = f'{self.base}action=query&titles={page_id}&format=json'
 
 
         return self.request(url)
