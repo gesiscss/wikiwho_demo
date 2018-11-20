@@ -1,0 +1,6 @@
+jupyter
+pandas
+wikiwho_wrapper
+appmode
+nbstripout
+bokeh
