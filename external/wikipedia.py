@@ -4,7 +4,6 @@ import pandas as pd
 from .api import API, DataView
 
 
-
 class WikipediaDV(DataView):
 
     def get_page(self, page: Union[int, str]) -> pd.Series:
@@ -37,6 +36,9 @@ class WikipediaDV(DataView):
             'from': res['query']['normalized'][0]['from'],
         })
 
+    def get_editor(self, editor: Union[int, str]) -> pd.Series:
+        #res = self.api.get_editor(editor)
+        return pd.Series()
 
 
 class WikipediaAPI(API):
@@ -90,6 +92,5 @@ class WikipediaAPI(API):
             url = f'{self.base}action=query&pageids={page_id}&format=json'
         elif isinstance(page_id, str):
             url = f'{self.base}action=query&titles={page_id}&format=json'
-
 
         return self.request(url)
