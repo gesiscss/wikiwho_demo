@@ -20,7 +20,10 @@ class WikiMediaDV(DataView):
             dict: ageview counts for an article
         """
 
-        return pd.DataFrame(data=self.api.get_pageviews(article_name, granularity)['items'])
+        df = pd.DataFrame(data=self.api.get_pageviews(article_name, granularity)['items'])
+        df['timestamp'] = pd.to_datetime(df['timestamp'].str[:8])
+
+        return df
 
 
 class WikiMediaAPI(API):
@@ -60,7 +63,7 @@ class WikiMediaAPI(API):
                          attempts=attempts)
         self.base = f'{self.base}api/{version}/'
         self.project = project
-#https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/all-agents
+
     def get_pageviews(self, article_name: str, granularity: str = 'monthly'):
         """Get pageview counts for an article
 

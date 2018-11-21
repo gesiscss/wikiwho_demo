@@ -1,3 +1,6 @@
+plotly
+matplotlib
+tabulate
 jupyter
 pandas
 wikiwho_wrapper
