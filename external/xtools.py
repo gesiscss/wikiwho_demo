@@ -1,4 +1,25 @@
-from .api import API
+import pandas as pd
+
+from .api import API, DataView
+
+class XtoolsDV(DataView):
+
+    def get_page_info(self, page: str) -> pd.Series:
+        """Get pageview counts for an page
+
+        Args:
+            page_id (str): Description
+
+        Returns:
+            pd.Series: info of the page
+
+        """
+
+        res = self.api.get_page_info(page)
+
+        return pd.Series(res)
+
+
 
 class XtoolsAPI(API):
 
@@ -34,16 +55,16 @@ class XtoolsAPI(API):
                          api_key=api_key,
                          attempts=attempts)
         self.project = project
-        self.base = f"{self.base}/api/"
+        self.base = f"{self.base}api/"
 
-    def get_article_info(self, article_name: str) -> dict:
+    def get_page_info(self, page_name: str) -> dict:
         """Get basic information about the history of a page.
 
         Args:
-            article_name (str): Full page title.
+            page_name (str): Full page title.
 
         Returns:
             dict: basic information about the history of a page.
         """
 
-        return self.request(f'{self.base}page/articleinfo/{self.project}/{article_name}')
+        return self.request(f'{self.base}page/articleinfo/{self.project}/{page_name}')
