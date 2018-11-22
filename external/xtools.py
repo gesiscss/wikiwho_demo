@@ -2,6 +2,7 @@ import pandas as pd
 
 from .api import API, DataView
 
+
 class XtoolsDV(DataView):
 
     def get_page_info(self, page: str) -> pd.Series:
@@ -19,6 +20,36 @@ class XtoolsDV(DataView):
 
         return pd.Series(res)
 
+    def get_modified_pages_counts_per_editor(self, editor):
+
+        res = self.api.get_modified_pages_counts_per_editor(editor)
+
+        # return pd.Series(res)
+
+        count = res['counts']
+        if len(count) == 0:
+            raise Exception('Not Found')
+
+        # elif len(count) > 1:
+        #     raise Exception('Several Found')
+
+        return pd.Series({
+            'Created pages:': count['count'],
+            'Deleted pages': count['deleted'],
+            'Redirected pages': count['redirects']
+        })
+
+    def get_created_pages_per_editor(self, editor):
+
+        res = self.api.get_created_pages_per_editor(editor)
+
+        pages = res['pages']
+        if len(pages) == 0:
+            raise Exception('Not Found')
+
+        # just the api call, don't worry about building the dataframe yet
+        # return pd.DataFrame(res)
+        return pd.Series(res)
 
 
 class XtoolsAPI(API):
@@ -68,3 +99,27 @@ class XtoolsAPI(API):
         """
 
         return self.request(f'{self.base}page/articleinfo/{self.project}/{page_name}')
+
+    def get_modified_pages_counts_per_editor(self, editor_name: str) -> dict:
+        """Get basic information about the history of a page.
+
+        Args:
+            editor_name (str): Full page title.
+
+        Returns:
+            dict: basic information about the history of a page.
+        """
+
+        return self.request(f'{self.base}user/pages_count/{self.project}/{editor_name}')
+
+    def get_created_pages_per_editor(self, editor_name: str) -> dict:
+        """Get basic information about the history of a page.
+
+        Args:
+            editor_name (str): Full page title.
+
+        Returns:
+            dict: basic information about the history of a page.
+        """
+
+        return self.request(f'{self.base}user/pages/{self.project}/{editor_name}')
