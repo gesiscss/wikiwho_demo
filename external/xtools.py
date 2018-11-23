@@ -47,9 +47,7 @@ class XtoolsDV(DataView):
         if len(pages) == 0:
             raise Exception('Not Found')
 
-        # just the api call, don't worry about building the dataframe yet
-        # return pd.DataFrame(res)
-        return pd.Series(res)
+        return pd.DataFrame(res['pages'])
 
 
 class XtoolsAPI(API):
