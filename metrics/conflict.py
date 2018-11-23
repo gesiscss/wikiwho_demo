@@ -14,13 +14,13 @@ class ConflictCalculator:
     def calculate(self):
 
         print('Downloading and preparing revisions')
-        revisions = self.prepare_revisions()
+        self.revisions = self.prepare_revisions()
 
         print('Downloading and preparing tokens')
-        tokens = self.prepare_tokens()
+        self.tokens = self.prepare_tokens()
 
         print('Merge tokens and revisions')
-        df = self.merge_tokens_and_revisions(tokens, revisions)
+        df = self.merge_tokens_and_revisions(self.tokens, self.revisions)
 
         print('Calculate time differences of undos')
         df = self.calculate_time_diffs(df)

@@ -33,13 +33,14 @@ class DFListener():
 
         if blue != 'None':
             data.append(graph_objs.Scatter(
-                x=list(df['year_month']), y=list(df[green]),
-                name=green,
-                marker=dict(color='rgba(0, 128, 43, 1)')))
-        if green != 'None':
-            data.append(graph_objs.Scatter(
                 x=list(df['year_month']), y=list(df[blue]),
                 name=blue,
+                marker=dict(color='rgba(0, 128, 43, 1)')))
+
+        if green != 'None':
+            data.append(graph_objs.Scatter(
+                x=list(df['year_month']), y=list(df[green]),
+                name=green,
                 marker=dict(color='rgba(0, 153, 255, .8)')))
 
         layout = graph_objs.Layout(hovermode='closest',
