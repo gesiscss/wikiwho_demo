@@ -1,3 +1,4 @@
+wordcloud
 plotly
 matplotlib
 tabulate
