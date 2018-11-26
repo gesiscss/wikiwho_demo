@@ -39,10 +39,10 @@ class WordClouder(object):
     def get_color_func(self, word, **args):
         return self.colors[word[-1]]
 
-    def get_wordcloud(self, path):
+    def get_wordcloud(self):
         #alice_mask = np.array(Image.open("alice_mask.png"))
 
-        wc = WordCloud(background_color="white", width=200, height=100)
+        wc = WordCloud(background_color="white", width=800, height=400)
 
         # generate word cloud
         wc.generate_from_frequencies(self.words)
