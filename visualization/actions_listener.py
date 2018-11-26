@@ -3,13 +3,13 @@ import plotly
 from plotly import graph_objs
 
 
-class DFListener():
+class ActionsListener():
 
     def __init__(self, df):
         self.df = df
         self.df_plotted = None
 
-    def editions_per_month(self, begin, end, granularity,
+    def listen(self, begin, end, granularity,
                            black, red, blue, green):
         df = self.df
 
