@@ -20,18 +20,18 @@ class ConflictCalculator:
         self.tokens = self.prepare_tokens()
 
         print('Merge tokens and revisions')
-        df = self.merge_tokens_and_revisions(self.tokens, self.revisions)
+        actions = self.merge_tokens_and_revisions(self.tokens, self.revisions)
 
         print('Calculate time differences of undos')
-        df = self.calculate_time_diffs(df)
+        actions = self.calculate_time_diffs(actions)
 
         print('Get the conflicts')
-        self.conflicts = self.get_conflicts(df)
+        self.conflicts = self.get_conflicts(actions)
 
         print('Calculate the token conflict')
-        self.df = self.calculate_token_conflict_score(df, self.conflicts)
+        self.actions = self.calculate_token_conflict_score(actions, self.conflicts)
 
-        return self.df
+        return self.actions
 
     def prepare_revisions(self):
         revisions = self.wikiwho.dv.rev_ids_of_article(self.page)
@@ -161,19 +161,19 @@ class ConflictCalculator:
         return df
 
     def get_all_conflicts(self):
-        return self.df[self.conflicts]
+        return self.actions[self.conflicts]
 
     def get_page_conflict_score(self):
         """ This calculates a total conflict score for the page. It adds all the conflicts 
         and divide them by the summ of all elegible actions (i.e. actions that have the potential
         of being undos)
         """
-        return (self.df.loc[self.conflicts, 'conflict'].sum() /
-                self.df[self.get_elegible_actions(self.df)].shape[0])
+        return (self.actions.loc[self.conflicts, 'conflict'].sum() /
+                self.actions[self.get_elegible_actions(self.actions)].shape[0])
 
     def get_page_conflict_score2(self):
-        return (self.df.loc[self.conflicts, 'conflict'].sum() /
-                len(self.df['rev_id'] == self.df['o_rev_id']))
+        return (self.actions.loc[self.conflicts, 'conflict'].sum() /
+                len(self.actions['rev_id'] == self.actions['o_rev_id']))
 
     def get_conflict_score_per_editor(self):
         """ This calculates an score per editor. It adds all the conflicts per editor, and 
@@ -183,15 +183,15 @@ class ConflictCalculator:
 
 
         # calculate the number of conflicts per editor
-        confs_n = self.df.loc[self.conflicts, [
+        confs_n = self.actions.loc[self.conflicts, [
             'editor', 'conflict']].groupby('editor').count().rename(
                 columns={'conflict': 'conflict_n'})
         # calculate the accumulated conflict per editor
-        confs_ed = self.df.loc[self.conflicts, [
+        confs_ed = self.actions.loc[self.conflicts, [
             'editor', 'conflict']].groupby('editor').sum()
         # calculate the 'elegible' actions per editor
-        actions = self.df.loc[self.get_elegible_actions(
-            self.df), ['editor', 'action']].groupby('editor').count()
+        actions = self.actions.loc[self.get_elegible_actions(
+            self.actions), ['editor', 'action']].groupby('editor').count()
 
         # join the dataframes
         joined = confs_n.join(confs_ed).join(actions)
