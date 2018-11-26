@@ -1,10 +1,10 @@
 wordcloud
 plotly
 matplotlib
-tabulate
 jupyter
 pandas
 wikiwho_wrapper
 appmode
 nbstripout
 bokeh
+qgrid
