@@ -9,14 +9,17 @@ class ConflictsListener():
         self.df = df
         self.df_plotted = None
 
-    def listen(self, begin, end, granularity, black, red):
+    def listen(self, _range, granularity, black, red):
         df = self.df
 
         # time diff to seconds
         df['diff_secs'] = df['time_diff'].dt.total_seconds()
 
         # dates filter
-        df = df[(df.rev_time >= begin) & (df.rev_time <= end)]
+        # df = df[(df.rev_time >= _range[0]) & (df.rev_time <= _range[1])]
+
+        df = df[(df.rev_time.dt.date >= _range[0]) &
+                (df.rev_time.dt.date <= _range[1])]
 
 
         # calculate the aggreated values

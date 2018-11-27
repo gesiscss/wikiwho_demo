@@ -9,11 +9,11 @@ class ActionsListener():
         self.df = df
         self.df_plotted = None
 
-    def listen(self, begin, end, granularity,
+    def listen(self, _range, granularity,
                            black, red, blue, green):
         df = self.df
 
-        df = df[(df.year_month >= begin) & (df.year_month <= end)]
+        df = df[(df.year_month.dt.date >= _range[0]) & (df.year_month.dt.date <= _range[1])]
 
         df = df.groupby(pd.Grouper(
             key='year_month', freq=granularity[0])).sum().reset_index()
