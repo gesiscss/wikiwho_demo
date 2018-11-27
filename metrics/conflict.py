@@ -16,7 +16,8 @@ class ConflictCalculator:
         print('Downloading and preparing revisions')
         self.revisions = self.prepare_revisions()
 
-        print('Downloading and preparing tokens')
+        print('Downloading all tokens and preparing tokens')
+        self.all_content = self.wikiwho.dv.all_content(self.page)
         self.tokens = self.prepare_tokens()
 
         print('Merge tokens and revisions')
@@ -29,9 +30,19 @@ class ConflictCalculator:
         self.conflicts = self.get_conflicts(actions)
 
         print('Calculate the token conflict')
-        self.actions = self.calculate_token_conflict_score(actions, self.conflicts)
+        self.actions = self.calculate_token_conflict_score(
+            actions, self.conflicts)
 
         return self.actions
+
+    def get_all_tokens(self, stopwords=True):
+        tokens = self.fill_first_insertion(self.all_content)
+        if stopwords:
+            tokens = self.remove_stopwords(tokens)
+       
+        tokens = self.wide_to_long(tokens)
+        tokens = tokens[tokens['rev_id']!=-1]
+        return self.merge_tokens_and_revisions(tokens, self.revisions)
 
     def prepare_revisions(self):
         revisions = self.wikiwho.dv.rev_ids_of_article(self.page)
@@ -40,8 +51,7 @@ class ConflictCalculator:
         return revisions
 
     def prepare_tokens(self):
-        tokens = self.wikiwho.dv.all_content(self.page)
-        tokens = self.fill_first_insertion(tokens)
+        tokens = self.fill_first_insertion(self.all_content)
         tokens = self.remove_unique_rows(tokens)
         tokens = self.remove_stopwords(tokens)
         tokens = self.wide_to_long(tokens)
@@ -180,7 +190,6 @@ class ConflictCalculator:
         divide them by the summ of all elegible actions that belong to each editor( i.e. 
         actions that have the potential of being undos)
         """
-
 
         # calculate the number of conflicts per editor
         confs_n = self.actions.loc[self.conflicts, [
