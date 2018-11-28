@@ -36,7 +36,7 @@ class ViewsListener():
 
         trace1 = graph_objs.Scatter(
             x=month, y=views,
-            mode='lines+markers', name='Adds',
+            mode='lines+markers', name='Actions',
             marker=dict(color='rgba(0, 128, 43, .8)')
         )
 
@@ -45,7 +45,8 @@ class ViewsListener():
                                               zeroline=True, gridwidth=2),
                                    yaxis=dict(title='Actions',
                                               ticklen=5, gridwidth=2),
-                                   showlegend=True)
+                                   legend=dict(x=0.5, y=1.2),
+                                   showlegend=False)
 
         data = [trace1]
 
