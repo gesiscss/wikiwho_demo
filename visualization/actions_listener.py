@@ -10,10 +10,11 @@ class ActionsListener():
         self.df_plotted = None
 
     def listen(self, _range, granularity,
-                           black, red, blue, green):
+               black, red, blue, green):
         df = self.df
 
-        df = df[(df.year_month.dt.date >= _range[0]) & (df.year_month.dt.date <= _range[1])]
+        df = df[(df.year_month.dt.date >= _range[0]) &
+                (df.year_month.dt.date <= _range[1])]
 
         df = df.groupby(pd.Grouper(
             key='year_month', freq=granularity[0])).sum().reset_index()
@@ -48,6 +49,7 @@ class ActionsListener():
                                               zeroline=True, gridwidth=2),
                                    yaxis=dict(title='Actions',
                                               ticklen=5, gridwidth=2),
+                                   legend=dict(x=0.5, y=1.2),
                                    showlegend=True, barmode='group')
 
         plotly.offline.init_notebook_mode(connected=True)
