@@ -17,9 +17,10 @@ class ConflictManager:
         revisions (pd.DataFrame): Revisions as per received through the Wikiwho Actions API
     """
 
-    def __init__(self, all_content, revisions):
+    def __init__(self, all_content, revisions, stopwords=True):
         self.all_content = all_content
         self.revisions = self.prepare_revisions(revisions)
+        self.stopwords = stopwords
 
     def calculate(self):
 
@@ -48,24 +49,35 @@ class ConflictManager:
 
         return self.elegible
 
-    def get_all_actions(self, stopwords=True):
-        actions = self.fill_first_insertion(self.all_content)
-        if stopwords:
-            actions = self.remove_stopwords(actions)
 
-        actions = self.wide_to_long(actions)
-        actions = actions[actions['rev_id'] != -1]
-        return self.merge_actions_and_revisions(actions, self.revisions)
+    def get_conflicting_actions(self, editor):
+        return self.elegible[self.__conflicts.shift(-1) & (
+            self.elegible.shift(-1)['editor']==editor)]
+
+    def get_all_actions(self):
+        try: 
+            return self.all_actions
+        except:
+            all_actions = self.fill_first_insertion(self.all_content)
+            if self.stopwords:
+                all_actions = self.remove_stopwords(all_actions)
+
+            all_actions = self.wide_to_long(all_actions)
+            all_actions = all_actions[all_actions['rev_id'] != -1]
+            self.all_actions = self.merge_actions_and_revisions(all_actions, self.revisions)
+            return self.all_actions
+
 
     def prepare_revisions(self, revisions):
         revisions = revisions.rename(columns={'o_editor': 'editor'})
         revisions['rev_time'] = pd.to_datetime(revisions['rev_time'])
         return revisions
 
-    def get_elegible(self, stopwords=True):
+    def get_elegible(self):
         elegible = self.fill_first_insertion(self.all_content)
         elegible = self.remove_unique_rows(elegible)
-        elegible = self.remove_stopwords(elegible)
+        if self.stopwords:
+            elegible = self.remove_stopwords(elegible)
         elegible = self.wide_to_long(elegible)
         return elegible
 
@@ -205,7 +217,7 @@ class ConflictManager:
         confs_n = self.conflicts[['editor', 'conflict']].groupby('editor').count().rename(
             columns={'conflict': 'conflict_n'})
         # calculate the accumulated conflict per editor
-        confs_ed = self.conficts[
+        confs_ed = self.conflicts[
             ['editor', 'conflict']].groupby('editor').sum()
         # calculate the 'elegible' actions per editor
         actions = self.elegible_actions[
