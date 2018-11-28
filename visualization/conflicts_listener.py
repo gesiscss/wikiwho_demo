@@ -21,18 +21,15 @@ class ConflictsListener():
         df = df[(df.rev_time.dt.date >= _range[0]) &
                 (df.rev_time.dt.date <= _range[1])]
 
-
         # calculate the aggreated values
         df = df.groupby(pd.Grouper(
             key='rev_time', freq=granularity[0])).agg({'conflict': ['sum', 'count'],
-                                    'action': ['count'],
-                                    'diff_secs':['count', 'sum']}).reset_index()
+                                                       'action': ['count'],
+                                                       'diff_secs': ['count', 'sum']}).reset_index()
 
-
-        self.traces=[]
+        self.traces = []
         df = self.add_trace(df, black, 'rgba(0, 0, 0, 1)')
         df = self.add_trace(df, red, 'rgba(255, 0, 0, .8)')
-
 
         # if red != 'None':
         #     data.append(graph_objs.Scatter(
@@ -56,7 +53,8 @@ class ConflictsListener():
                                    xaxis=dict(title=granularity, ticklen=5,
                                               zeroline=True, gridwidth=2),
                                    yaxis=dict(
-                                              ticklen=5, gridwidth=2),
+                                       ticklen=5, gridwidth=2),
+                                   legend=dict(x=0.5, y=1.2),
                                    showlegend=True, barmode='group')
 
         self.df_plotted = df
@@ -65,32 +63,36 @@ class ConflictsListener():
         plotly.offline.iplot({"data": self.traces, "layout": layout})
 
     def add_trace(self, df, metric, color):
-        if metric == 'None': 
+        if metric == 'None':
             return df
 
-        elif metric == 'Conflict Score':          
-            df['conflict_score'] = df[('conflict', 'sum')] / df[('diff_secs', 'count')]
+        elif metric == 'Conflict Score':
+            df['conflict_score'] = df[
+                ('conflict', 'sum')] / df[('diff_secs', 'count')]
             y = df.loc[~df['conflict_score'].isnull(), 'conflict_score']
 
-        elif metric == 'Conflict Ratio':  
-            df['conflict_ratio'] = df[('conflict', 'count')] / df[('diff_secs', 'count')]
+        elif metric == 'Conflict Ratio':
+            df['conflict_ratio'] = df[
+                ('conflict', 'count')] / df[('diff_secs', 'count')]
             y = df.loc[~df['conflict_ratio'].isnull(), 'conflict_ratio']
 
-        elif metric == 'Total Conflicts': 
+        elif metric == 'Total Conflicts':
             y = df[('conflict', 'count')]
 
-        elif metric == 'Total Elegible Actions': 
+        elif metric == 'Total Elegible Actions':
             y = df[('diff_secs', 'count')]
 
-        elif metric == 'Total Actions': 
+        elif metric == 'Total Actions':
             y = df[('action', 'count')]
 
-        elif metric == 'Total Time': 
+        elif metric == 'Total Time':
             y = df[('diff_secs', 'sum')]
 
-        elif metric == 'Time per Elegible Action': 
-            df['time_per_elegible_action'] = df[('diff_secs', 'sum')] / df[('diff_secs', 'count')]
-            y = df.loc[~df['time_per_elegible_action'].isnull(), 'time_per_elegible_action']
+        elif metric == 'Time per Elegible Action':
+            df['time_per_elegible_action'] = df[
+                ('diff_secs', 'sum')] / df[('diff_secs', 'count')]
+            y = df.loc[~df['time_per_elegible_action'].isnull(),
+                       'time_per_elegible_action']
 
         self.traces.append(
             graph_objs.Scatter(
@@ -100,4 +102,3 @@ class ConflictsListener():
         )
 
         return df
-

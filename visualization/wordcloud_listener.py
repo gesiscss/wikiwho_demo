@@ -33,14 +33,19 @@ class WCListener():
         colors = {'+': '#CC3300', '-': '#003399'}
 
         # Create word cloud
-        wc = WordClouder(word_counts, colors)        
-        wcr = wc.get_wordcloud()
+        wc = WordClouder(word_counts, colors)
 
-        # Revisions involved
-        display(md(f"### The below token conflicts ocurred in a total of {len(df['rev_id'].unique())} revisions:"))
+        try:
+            wcr = wc.get_wordcloud()
 
-        # Plot
-        plt.figure(figsize=(14, 7))
-        plt.imshow(wcr, interpolation="bilinear")
-        plt.axis("off")
-        plt.show()
+            # Revisions involved
+            display(md(f"### The below token conflicts ocurred in a total of {len(df['rev_id'].unique())} revisions:"))
+
+            # Plot
+            plt.figure(figsize=(14, 7))
+            plt.imshow(wcr, interpolation="bilinear")
+            plt.axis("off")
+            plt.show()
+
+        except ValueError:
+            display(md("Can not create a word cloud! No token conflict found."))
