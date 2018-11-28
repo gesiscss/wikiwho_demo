@@ -1,5 +1,6 @@
 from ipywidgets.widgets import SelectionRangeSlider
 from notebook import notebookapp
+import pandas as pd
 import urllib
 import json
 import os
@@ -65,6 +66,12 @@ def get_notebook_by_number(_id):
 def get_date_slider_from_datetime(datetime_series):  
     datetime_series= datetime_series[~datetime_series.isnull()]
     opts = datetime_series.sort_values().dt.date.unique()
+
+    if len(opts) == 1:
+        opts = [pd.Timestamp(0), opts[0]]
+    elif len(opts) == 0:
+        opts = [pd.Timestamp(0), pd.Timestamp.today()]
+        
     return SelectionRangeSlider(
         options = opts,
         index = (0, len(opts)-1),
