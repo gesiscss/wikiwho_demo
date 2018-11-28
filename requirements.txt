@@ -8,3 +8,4 @@ appmode
 nbstripout
 bokeh
 qgrid
+multidict
