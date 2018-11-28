@@ -3,9 +3,19 @@ import numpy as np
 import pandas as pd
 
 
+class ConflictManager:
 
+    """In charge of calculating the conflict meassurements, and all the related dataframes
+    with intermediate steps.
 
-class ConflictCalculator:
+    Attributes:
+        all_content (pd.DataFrame): All content as per received through the Wikiwho Actions API
+        conflicts (pd.DataFrame): The actions that have conflicts
+        elegible (pd.DataFrame): Only some tokens are elegible to possible have conflicts, the
+            dataframe contains all the actions of those elegible tokens
+        elegible_actions (pd.DataFrame): Only the actions that are elegible to have conflicts
+        revisions (pd.DataFrame): Revisions as per received through the Wikiwho Actions API
+    """
 
     def __init__(self, all_content, revisions):
         self.all_content = all_content
