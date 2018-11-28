@@ -61,7 +61,7 @@ class WCListener():
 
 
 
-class WCConflictingListener():
+class SimpleWCListener():
 
     def __init__(self, df, max_words=100):
         self.df = df
