@@ -2,15 +2,12 @@
 import numpy as np
 import pandas as pd
 
-from wikiwho_wrapper import WikiWho
 
-#self.all_content = self.wikiwho.dv.all_content(self.page)
-#revisions = self.wikiwho.dv.rev_ids_of_article(self.page)
 
 
 class ConflictCalculator:
 
-    def __init__(self, all_content=None, revisions=None):
+    def __init__(self, all_content, revisions):
         self.all_content = all_content
         self.revisions = self.prepare_revisions(revisions)
 
@@ -21,7 +18,7 @@ class ConflictCalculator:
 
         print('Merge elegible actions and revisions')
         elegible = self.merge_actions_and_revisions(
-            self.elegible, self.revisions)
+            elegible, self.revisions)
 
         print('Calculate time differences of undos')
         elegible = self.__calculate_time_diffs(elegible)
