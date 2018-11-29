@@ -52,7 +52,10 @@ class WikipediaDV(DataView):
             editor (Union[int, str]): Description
 
         Returns:
-            pd.Series: Description
+            pd.Series: info of editor
+
+        Raises:
+            Exception: Description
         """
         res = self.api.get_editor(editor)
 
@@ -64,6 +67,31 @@ class WikipediaDV(DataView):
             raise Exception('Several Editors Found')
 
         return pd.Series(editors[0])
+
+    def search_page(self, search_query: str) -> pd.Series:
+        """Summary
+
+        Args:
+            search_query (str): Description
+
+        Returns:
+            pd.Series: page title
+
+        Raises:
+            Exception: Description
+        """
+        res = self.api.search_page(search_query)
+
+        result = res[1]
+        if len(result) == 0:
+            raise Exception('Article Not Found')
+
+        elif len(result) > 1:
+            raise Exception('Several Pages Found')
+
+        return pd.Series({
+            'title': result[0]
+        })
 
 
 class WikipediaAPI(API):
@@ -146,5 +174,18 @@ class WikipediaAPI(API):
             url = f'{self.base}action=query&list=users&ususerids={editor}&usprop=blockinfo|editcount|registration|gender&format=json'
         elif isinstance(editor, str):
             url = f'{self.base}action=query&list=users&ususers={editor}&usprop=blockinfo|editcount|registration|gender&format=json'
+
+        return self.request(url)
+
+    def search_page(self, search_query: str) -> dict:
+        """Summary
+
+        Args:
+            search_query (str): Description
+
+        Returns:
+            dict: Description
+        """
+        url = f'{self.base}action=opensearch&search={search_query}&limit=1&namespace=0&format=json'
 
         return self.request(url)
