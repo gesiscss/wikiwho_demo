@@ -6,12 +6,12 @@ dependencies:
   - appmode
   - numpy
   - pandas
+  - jupyter
   - pip:
     - wordcloud
     - nbstripout
     - wikiwho_wrapper
-    - jupyter
-    - ipywidgets
+    - ipywidgets==7.4.2
     - matplotlib
     - plotly
     - qgrid
