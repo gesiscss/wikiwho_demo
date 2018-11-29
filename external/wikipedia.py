@@ -7,7 +7,6 @@ from .api import API, DataView
 
 
 class WikipediaDV(DataView):
-
     """Summary
     """
 
@@ -93,9 +92,18 @@ class WikipediaDV(DataView):
             'title': result[0]
         })
 
+    def get_editors(self, editors: list) -> pd.Series:
+
+        res = self.api.get_editors(editors)
+
+        editors = res['query']['users']
+        if len(editors) == 0:
+            raise Exception('Editor Not Found')
+
+        return pd.DataFrame(editors)
+
 
 class WikipediaAPI(API):
-
     """Summary
 
     Attributes:
@@ -106,13 +114,12 @@ class WikipediaAPI(API):
     """
 
     def __init__(self,
-                 domain: str='en.wikipedia.org',
-
-                 api_username: str=None,
-                 api_password: str=None,
-                 api_key: str=None,
-                 protocol: str='https',
-                 attempts: int=2):
+                 domain: str = 'en.wikipedia.org',
+                 api_username: str = None,
+                 api_password: str = None,
+                 api_key: str = None,
+                 protocol: str = 'https',
+                 attempts: int = 2):
         """Constructor of the WikiWhoAPI
 
         Args:
@@ -187,5 +194,16 @@ class WikipediaAPI(API):
             dict: Description
         """
         url = f'{self.base}action=opensearch&search={search_query}&limit=1&namespace=0&format=json'
+
+        return self.request(url)
+
+    def get_editors(self, editors: list) -> dict:
+
+        editors_str = "|".join(str(x) for x in editors)
+
+        if isinstance(editors[0], int):
+            url = f'{self.base}action=query&list=users&ususerids={editors_str}&usprop=blockinfo|editcount|registration|gender&format=json'
+        elif isinstance(editors[0], str):
+            url = f'{self.base}action=query&list=users&ususers={editors_str}&usprop=blockinfo|editcount|registration|gender&format=json'
 
         return self.request(url)

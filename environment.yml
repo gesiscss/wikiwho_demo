@@ -7,12 +7,13 @@ dependencies:
   - numpy
   - pandas
   - jupyter
-  - plotly
-  - qgrid
-  - nbstripout
-  - matplotlib
-  - multidict
   - pip:
     - wordcloud
     - nbstripout
     - wikiwho_wrapper
+    - ipywidgets==7.4.2
+    - matplotlib
+    - plotly
+    - qgrid
+    - nbstripout
+    - multidict
