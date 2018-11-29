@@ -50,17 +50,22 @@ def notebook_name():
     return None
 
 def get_next_notebook():
-    _id = int(notebook_name()[0]) + 1
+    try:
+        _id = int(notebook_name()[0]) + 1
+    except:
+        _id = int(notebook_name()[1]) + 1
     return glob.glob(f"{_id}*.ipynb")[0]
 
 
 def get_previous_notebook():
-    _id = int(notebook_name()[0]) - 1
+    try:
+        _id = int(notebook_name()[0]) - 1
+    except:
+        _id = int(notebook_name()[1]) - 1
     return glob.glob(f"{_id}*.ipynb")[0]
 
 def get_notebook_by_number(_id):
     return glob.glob(f"{_id}*.ipynb")[0]
-
 
 
 def get_date_slider_from_datetime(datetime_series):  

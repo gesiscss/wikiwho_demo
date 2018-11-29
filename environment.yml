@@ -6,13 +6,14 @@ dependencies:
   - appmode
   - numpy
   - pandas
-  - jupyter
-  - plotly
-  - qgrid
-  - nbstripout
-  - matplotlib
-  - multidict
   - pip:
     - wordcloud
     - nbstripout
     - wikiwho_wrapper
+    - jupyter
+    - ipywidgets
+    - matplotlib
+    - plotly
+    - qgrid
+    - nbstripout
+    - multidict
