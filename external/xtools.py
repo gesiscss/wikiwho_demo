@@ -120,4 +120,8 @@ class XtoolsAPI(API):
             dict: basic information about the history of a page.
         """
 
+        print(f'{self.base}user/pages/{self.project}/{editor_name}')
+        
+
+
         return self.request(f'{self.base}user/pages/{self.project}/{editor_name}')
