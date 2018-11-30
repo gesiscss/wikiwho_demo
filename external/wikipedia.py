@@ -4,6 +4,8 @@ from typing import Union
 
 import pandas as pd
 from .api import API, DataView
+from .utils import chunks
+from itertools import chain
 
 
 class WikipediaDV(DataView):
@@ -66,13 +68,10 @@ class WikipediaDV(DataView):
 
     def get_editors(self, editors: list) -> pd.Series:
 
-        res = self.api.get_editors(editors)
+        res = (self.api.get_editors(chunk)['query'][
+               'users'] for chunk in chunks(editors, 50))
 
-        editors = res['query']['users']
-        if len(editors) == 0:
-            raise Exception('Editor Not Found')
-
-        return pd.DataFrame(editors)
+        return pd.DataFrame(x for x in chain(*res))
 
 
 class WikipediaAPI(API):

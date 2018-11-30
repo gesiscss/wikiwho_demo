@@ -73,9 +73,9 @@ def get_date_slider_from_datetime(datetime_series):
     opts = datetime_series.sort_values().dt.date.unique()
 
     if len(opts) == 1:
-        opts = [pd.Timestamp(0), opts[0]]
+        opts = [pd.Timestamp(0).date(), opts[0]]
     elif len(opts) == 0:
-        opts = [pd.Timestamp(0), pd.Timestamp.today()]
+        opts = [pd.Timestamp(0).date(), pd.Timestamp.today().date()]
         
     return SelectionRangeSlider(
         options = opts,
