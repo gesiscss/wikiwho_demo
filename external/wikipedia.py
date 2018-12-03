@@ -90,9 +90,11 @@ class WikipediaDV(DataView):
         elif len(result) > 1:
             raise Exception('Several Pages Found')
 
-        return pd.Series({
-            'title': result[0]
-        })
+        # return pd.Series({
+        #     'title': result[0]
+        # })
+
+        return result[0]
 
     def get_editors(self, editors: list) -> pd.Series:
 
