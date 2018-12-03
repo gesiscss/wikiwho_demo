@@ -49,13 +49,12 @@ class ConflictManager:
 
         return self.elegible
 
-
     def get_conflicting_actions(self, editor):
         return self.elegible[self.__conflicts.shift(-1) & (
-            self.elegible.shift(-1)['editor']==editor)]
+            self.elegible.shift(-1)['editor'] == editor)]
 
     def get_all_actions(self):
-        try: 
+        try:
             return self.all_actions
         except:
             all_actions = self.fill_first_insertion(self.all_content)
@@ -64,9 +63,9 @@ class ConflictManager:
 
             all_actions = self.wide_to_long(all_actions)
             all_actions = all_actions[all_actions['rev_id'] != -1]
-            self.all_actions = self.merge_actions_and_revisions(all_actions, self.revisions)
+            self.all_actions = self.merge_actions_and_revisions(
+                all_actions, self.revisions)
             return self.all_actions
-
 
     def prepare_revisions(self, revisions):
         revisions = revisions.rename(columns={'o_editor': 'editor'})
@@ -200,8 +199,12 @@ class ConflictManager:
         and divide them by the summ of all elegible actions (i.e. actions that have the potential
         of being undos)
         """
-        return (self.elegible.loc[self.__conflicts, 'conflict'].sum() /
-                self.elegible_actions.shape[0])
+
+        if (self.elegible_actions.shape[0] == 0):
+            return 0
+        else:
+            return (self.elegible.loc[self.__conflicts, 'conflict'].sum() /
+                    self.elegible_actions.shape[0])
 
     def get_page_conflict_score2(self):
         return (self.elegible.loc[self.__conflicts, 'conflict'].sum() /
