@@ -31,7 +31,6 @@ class WCListener():
             display(md(f"**There is zero cases to build the wordcloud**"))
             return 0
 
-
         df_in = df[df['action'] == 'in']['token'] + '+'
         df_out = df[df['action'] == 'out']['token'] + '-'
         in_out = pd.concat([df_in, df_out])
@@ -55,10 +54,9 @@ class WCListener():
             plt.axis("off")
             plt.show()
 
-
         except ValueError:
-            display(md("Cannot create the wordcloud, there were zero conflict tokens."))
-
+            display(
+                md("Cannot create the wordcloud, there were zero conflict tokens."))
 
 
 class SimpleWCListener():
@@ -67,7 +65,7 @@ class SimpleWCListener():
         self.df = df
         self.max_words = max_words
 
-    def listen(self, _range, action, only_conflict):
+    def listen(self, _range, action, editor, only_conflict):
         df = self.df
 
         df = df[(df.rev_time.dt.date >= _range[0]) &
@@ -77,6 +75,8 @@ class SimpleWCListener():
             df = df[df['action'] == 'in']
         elif action == 'Just Deletions':
             df = df[df['action'] == 'out']
+
+        df[df['editor'] == editor]
 
         if only_conflict:
             df = df[~df['conflict'].isnull()]
@@ -108,4 +108,5 @@ class SimpleWCListener():
             plt.show()
 
         except ValueError:
-            display(md("Cannot create the wordcloud, there were zero conflict tokens."))
+            display(
+                md("Cannot create the wordcloud, there were zero conflict tokens."))
