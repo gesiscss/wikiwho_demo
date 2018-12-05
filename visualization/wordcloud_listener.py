@@ -28,7 +28,7 @@ class WCListener():
             df = df[df['action'] == 'out']
 
         if len(df) == 0:
-            display(md(f"**There is zero cases to build the wordcloud**"))
+            display(md(f"**There are no words to build the word cloud.**"))
             return 0
 
         df_in = df[df['action'] == 'in']['token'] + '+'
@@ -76,13 +76,14 @@ class SimpleWCListener():
         elif action == 'Just Deletions':
             df = df[df['action'] == 'out']
 
-        df[df['editor'] == editor]
+        if editor != 'All':
+            df = df[df['editor'] == editor]
 
         if only_conflict:
             df = df[~df['conflict'].isnull()]
 
         if len(df) == 0:
-            display(md(f"**There is zero cases to build the wordcloud**"))
+            display(md(f"**There are no words to build the word cloud.**"))
             return 0
 
         df_in = df[df['action'] == 'in']['token'] + '+'
