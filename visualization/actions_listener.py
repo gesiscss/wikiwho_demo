@@ -9,12 +9,15 @@ class ActionsListener():
         self.df = df
         self.df_plotted = None
 
-    def listen(self, _range, granularity,
+    def listen(self, _range, editor, granularity,
                black, red, blue, green):
         df = self.df
 
         df = df[(df.year_month.dt.date >= _range[0]) &
                 (df.year_month.dt.date <= _range[1])]
+
+        if editor != 'All':
+            df = df[df['editor_id'] == editor]
 
         df = df.groupby(pd.Grouper(
             key='year_month', freq=granularity[0])).sum().reset_index()
