@@ -28,8 +28,13 @@ class ConflictsListener():
                                                        'diff_secs': ['count', 'sum']}).reset_index()
 
         self.traces = []
-        df = self.add_trace(df, black, 'rgba(0, 0, 0, 1)')
-        df = self.add_trace(df, red, 'rgba(255, 0, 0, .8)')
+        self.is_norm_scale = True
+        df = self.__add_trace(df, black, 'rgba(0, 0, 0, 1)')
+        df = self.__add_trace(df, red, 'rgba(255, 0, 0, .8)')
+
+        _range = None
+        if self.is_norm_scale:
+            _range = [0, 1]
 
         # if red != 'None':
         #     data.append(graph_objs.Scatter(
@@ -53,7 +58,7 @@ class ConflictsListener():
                                    xaxis=dict(title=granularity, ticklen=5,
                                               zeroline=True, gridwidth=2),
                                    yaxis=dict(
-                                       ticklen=5, gridwidth=2),
+                                       ticklen=5, gridwidth=2, range=_range),
                                    legend=dict(x=0.5, y=1.2),
                                    showlegend=True, barmode='group')
 
@@ -62,7 +67,7 @@ class ConflictsListener():
         plotly.offline.init_notebook_mode(connected=True)
         plotly.offline.iplot({"data": self.traces, "layout": layout})
 
-    def add_trace(self, df, metric, color):
+    def __add_trace(self, df, metric, color):
         if metric == 'None':
             return df
 
@@ -78,21 +83,26 @@ class ConflictsListener():
 
         elif metric == 'Total Conflicts':
             y = df[('conflict', 'count')]
+            self.is_norm_scale = False
 
         elif metric == 'Total Elegible Actions':
             y = df[('diff_secs', 'count')]
+            self.is_norm_scale = False
 
         elif metric == 'Total Actions':
             y = df[('action', 'count')]
+            self.is_norm_scale = False
 
         elif metric == 'Total Time':
             y = df[('diff_secs', 'sum')]
+            self.is_norm_scale = False
 
         elif metric == 'Time per Elegible Action':
             df['time_per_elegible_action'] = df[
                 ('diff_secs', 'sum')] / df[('diff_secs', 'count')]
             y = df.loc[~df['time_per_elegible_action'].isnull(),
                        'time_per_elegible_action']
+            self.is_norm_scale = False
 
         self.traces.append(
             graph_objs.Scatter(
