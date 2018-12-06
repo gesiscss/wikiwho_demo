@@ -77,7 +77,7 @@ class SimpleWCListener():
             df = df[df['action'] == 'out']
 
         if editor != 'All':
-            df = df[df['editor'] == editor]
+            df = df[df['name'] == editor]
 
         if only_conflict:
             df = df[~df['conflict'].isnull()]

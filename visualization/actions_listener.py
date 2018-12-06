@@ -17,7 +17,7 @@ class ActionsListener():
                 (df.year_month.dt.date <= _range[1])]
 
         if editor != 'All':
-            df = df[df['editor_id'] == editor]
+            df = df[df['name'] == editor]
 
         df = df.groupby(pd.Grouper(
             key='year_month', freq=granularity[0])).sum().reset_index()
