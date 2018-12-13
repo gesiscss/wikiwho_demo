@@ -4,20 +4,40 @@ import matplotlib.pyplot as plt
 from IPython.display import display, Markdown as md
 from .wordclouder import WordClouder
 
+#  WCListener
+#wc = WCListener(calculator)
+# wc = WCListener(sources = {
+#     'All actions': calculator.all_actions,
+#     'Elegible Actions': calculator.elegible_actions,
+#     'Only Conflicts': calculator.conflicts
+# })
+# .interact(listen.listen, ..., source=list(wc.sources.keys()),...editor=fixed(..)
+
+#  WCSimpleListener
+# df = calculator.elegible_actions
+# ...
+# wc = WCSimpleListener(df)
+
+# df = calculator.elegible_actions
+# ...
+# wc = WCListener(sources ={
+#     'Elegible Actions': df,
+#     'Only Conflicts': df[~df['conflict'].isnull()]
+#})
+# .interact(listen.listen, ..., source=list(wc.sources.keys()),...
+
 
 class WCListener():
 
-    def __init__(self, calculator, max_words=100):
-        self.calculator = calculator
+    def __init__(self, sources, max_words=100):
+        # def __init__(self, calculator, max_words=100):
+
+        self.sources = sources
+        # self.calculator = calculator
         self.max_words = max_words
 
-    def listen(self, _range, action, source):
-        if source == 'All actions':
-            df = self.calculator.all_actions
-        elif source == 'Elegible Actions':
-            df = self.calculator.elegible_actions
-        elif source == 'Only Conflicts':
-            df = self.calculator.conflicts
+    def listen(self, _range, source, action, editor):
+        df = self.sources[source]
 
         df = df[(df.rev_time.dt.date >= _range[0]) &
                 (df.rev_time.dt.date <= _range[1])]
@@ -26,6 +46,9 @@ class WCListener():
             df = df[df['action'] == 'in']
         elif action == 'Just Deletions':
             df = df[df['action'] == 'out']
+
+        if editor != 'All':
+            df = df[df['name'] == editor]
 
         if len(df) == 0:
             display(md(f"**There are no words to build the word cloud.**"))
