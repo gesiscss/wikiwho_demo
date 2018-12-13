@@ -20,9 +20,15 @@ class OwnedListener():
         doi = df.loc[df['editor'] == self.editor, 'rev_time'].dt.to_period(
             granularity[0]).dt.to_timestamp(granularity[0]).sort_values(ascending=False).unique()
 
+        self.is_norm_scale = True
+        _range = None
+        if self.is_norm_scale:
+            _range = [0, 100]
+
         _x = []
         _y = []
         if trace == 'Tokens Owned':
+            self.is_norm_scale = False
             for rev_time in doi:
                 df = df[df['rev_time'] <= rev_time]
                 last_action = df.groupby('token_id').last()
@@ -50,7 +56,7 @@ class OwnedListener():
                                    xaxis=dict(title='Time', ticklen=5,
                                               zeroline=True, gridwidth=2),
                                    yaxis=dict(title=trace,
-                                              ticklen=5, gridwidth=2),
+                                              ticklen=5, gridwidth=2, range=_range),
                                    legend=dict(x=0.5, y=1.2),
                                    barmode='group')
 
