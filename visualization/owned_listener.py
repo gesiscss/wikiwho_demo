@@ -10,7 +10,7 @@ class OwnedListener():
         self.editor = editor
         self.df_plotted = None
 
-    def listen(self, _range, granularity, black):
+    def listen(self, _range, granularity, trace):
         df = self.df
 
         df = df[(df.rev_time.dt.date >= _range[0]) &
@@ -21,7 +21,7 @@ class OwnedListener():
 
         self.traces = []
         self.is_norm_scale = True
-        df = self.__add_trace(df, black, 'rgba(0, 0, 0, 1)')
+        df = self.__add_trace(df, trace, 'rgba(0, 0, 0, 1)')
 
         _range = None
         if self.is_norm_scale:
@@ -40,11 +40,11 @@ class OwnedListener():
         plotly.offline.init_notebook_mode(connected=True)
         plotly.offline.iplot({"data": self.traces, "layout": layout})
 
-    def __add_trace(self, df, metric, color):
+    def __add_trace(self, df, trace, color):
         _x = []
         _y = []
 
-        if metric == 'Tokens Owned':
+        if trace == 'Tokens Owned':
             self.is_norm_scale = False
             for rev_time in self.doi:
                 df = df[df['rev_time'] <= rev_time]
@@ -54,7 +54,7 @@ class OwnedListener():
                 _x.append(rev_time)
                 _y.append(len(surv[surv['o_editor'] == self.editor]))
 
-        elif metric == 'Tokens Owned (%)':
+        elif trace == 'Tokens Owned (%)':
             for rev_time in self.doi:
                 df = df[df['rev_time'] <= rev_time]
                 last_action = df.groupby('token_id').last()
@@ -67,7 +67,7 @@ class OwnedListener():
         self.traces.append(
             graph_objs.Scatter(
                 x=pd.Series(_x), y=_y,
-                name=metric,
+                name=trace,
                 marker=dict(color=color))
         )
 
