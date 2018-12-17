@@ -46,6 +46,7 @@ class ConflictManager:
 
         self.conflicts = self.elegible[self.__conflicts]
         self.elegible_actions = self.elegible[self.__elegible_actions]
+        self.all_actions = self.__get_all_actions()
 
         return self.elegible
 
@@ -53,19 +54,14 @@ class ConflictManager:
         return self.elegible[self.__conflicts.shift(-1) & (
             self.elegible.shift(-1)['editor'] == editor)]
 
-    def get_all_actions(self):
-        try:
-            return self.all_actions
-        except:
-            all_actions = self.fill_first_insertion(self.all_content)
-            if self.stopwords:
-                all_actions = self.remove_stopwords(all_actions)
+    def __get_all_actions(self):
+        all_actions = self.fill_first_insertion(self.all_content)
+        if self.stopwords:
+            all_actions = self.remove_stopwords(all_actions)
 
-            all_actions = self.wide_to_long(all_actions)
-            all_actions = all_actions[all_actions['rev_id'] != -1]
-            self.all_actions = self.merge_actions_and_revisions(
-                all_actions, self.revisions)
-            return self.all_actions
+        all_actions = self.wide_to_long(all_actions)
+        all_actions = all_actions[all_actions['rev_id'] != -1]
+        return self.merge_actions_and_revisions(all_actions, self.revisions)
 
     def prepare_revisions(self, revisions):
         revisions = revisions.rename(columns={'o_editor': 'editor'})
