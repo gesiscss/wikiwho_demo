@@ -3,6 +3,8 @@
 from typing import Union
 
 import pandas as pd
+import numpy as np
+
 from .api import API, DataView
 from .utils import chunks
 from itertools import chain
@@ -154,7 +156,7 @@ class WikipediaAPI(API):
 
         """
 
-        if isinstance(page, int):
+        if isinstance(page, (int, np.integer)):
             url = f'{self.base}action=query&pageids={page}&format=json'
         elif isinstance(page, str):
             url = f'{self.base}action=query&titles={page}&format=json'
@@ -172,13 +174,13 @@ class WikipediaAPI(API):
 
         """
 
-        # if isinstance(editor, int):
+        # if isinstance(editor, (int, np.integer)):
         #     url = f'{self.base}action=query&list=users&ususerids={editor}&format=json'
         # elif isinstance(editor, str):
         # url =
         # f'{self.base}action=query&list=users&ususers={editor}&format=json'
 
-        if isinstance(editor, int):
+        if isinstance(editor, (int, np.integer)):
             url = f'{self.base}action=query&list=users&ususerids={editor}&usprop=blockinfo|editcount|registration|gender&format=json'
         elif isinstance(editor, str):
             url = f'{self.base}action=query&list=users&ususers={editor}&usprop=blockinfo|editcount|registration|gender&format=json'
@@ -202,7 +204,7 @@ class WikipediaAPI(API):
 
         editors_str = "|".join(str(x) for x in editors)
 
-        if isinstance(editors[0], int):
+        if isinstance(editors[0], (int, np.integer)):
             url = f'{self.base}action=query&list=users&ususerids={editors_str}&usprop=blockinfo|editcount|registration|gender&format=json'
         elif isinstance(editors[0], str):
             url = f'{self.base}action=query&list=users&ususers={editors_str}&usprop=blockinfo|editcount|registration|gender&format=json'

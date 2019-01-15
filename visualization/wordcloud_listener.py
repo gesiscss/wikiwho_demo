@@ -34,7 +34,7 @@ class WCListener():
         in_out = pd.concat([df_in, df_out])
 
         word_counts = in_out.value_counts()[:self.max_words]
-        colors = {'+': '#CC3300', '-': '#003399'}
+        colors = {'+': '#003399', '-': '#CC3300'}
 
         # Create word cloud
         wc = WordClouder(word_counts, colors, self.max_words)

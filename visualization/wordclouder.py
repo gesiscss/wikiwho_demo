@@ -1,3 +1,4 @@
+import numpy as np
 from wordcloud import WordCloud as WC
 
 from multidict import MultiDict
@@ -6,7 +7,7 @@ from multidict import MultiDict
 class WordCloud(WC):
 
     def recolor(self, random_state=None, color_func=None, colormap=None):
-        if isinstance(random_state, int):
+        if isinstance(random_state, (int, np.integer)):
             random_state = Random(random_state)
         self._check_generated()
 
