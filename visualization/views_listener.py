@@ -36,14 +36,14 @@ class ViewsListener():
 
         trace1 = graph_objs.Scatter(
             x=month, y=views,
-            mode='lines+markers', name='Actions',
+            mode='lines+markers', name='Views',
             marker=dict(color='rgba(0, 128, 43, .8)')
         )
 
         layout = graph_objs.Layout(hovermode='closest',
                                    xaxis=dict(title=granularity, ticklen=5,
                                               zeroline=True, gridwidth=2),
-                                   yaxis=dict(title='Actions',
+                                   yaxis=dict(title='Views',
                                               ticklen=5, gridwidth=2),
                                    legend=dict(x=0.5, y=1.2),
                                    showlegend=False)
