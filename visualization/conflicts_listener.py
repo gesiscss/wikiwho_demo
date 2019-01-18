@@ -31,10 +31,16 @@ class ConflictsListener():
                                                        'diff_secs': ['count', 'sum'],
                                                        'diff_secs_confl': ['count', 'sum']}).reset_index()
 
+        df.loc[df[('conflict', 'count')] == 0, ('conflict', 'sum')] = np.nan
+        df.loc[df[('diff_secs', 'count')] == 0, ('diff_secs', 'sum')] = np.nan
+        df.loc[df[('diff_secs_confl', 'count')] == 0, ('diff_secs_confl', 'sum')] = np.nan
+
         self.traces = []
         self.is_norm_scale = True
         df = self.__add_trace(df, black, 'rgba(0, 0, 0, 1)')
         df = self.__add_trace(df, red, 'rgba(255, 0, 0, .8)')
+
+        #np.all(np.array([len(sc.x) == 1 for sc in self.traces]))
 
         _range = None
         if self.is_norm_scale:
@@ -80,35 +86,35 @@ class ConflictsListener():
                 ('conflict', 'sum')] / df[('diff_secs', 'count')]
             sel = ~df['conflict_score'].isnull()
             y = df.loc[sel, 'conflict_score']
+            self.is_norm_scale = False
 
         elif metric == 'Conflict Ratio':
             df['conflict_ratio'] = df[
                 ('conflict', 'count')] / df[('diff_secs', 'count')]
-            sel = ~df['conflict_ratio'].isnull()
+            sel = ~(df['conflict_ratio'].isnull() |  (df[('conflict', 'count')] == 0))
             y = df.loc[sel, 'conflict_ratio']
 
         elif metric == 'Absolute Conflict Score':
-            y = df[('conflict', 'sum')]
+            df['absolute_conflict_score'] = df[('conflict', 'sum')]
+            sel = ~df['absolute_conflict_score'].isnull() 
+            y = df.loc[sel, 'absolute_conflict_score']
             self.is_norm_scale = False
 
         elif metric == 'Number of Conflicts':
-            y = df[('conflict', 'count')]
+            df['conflict_n'] = df[('conflict', 'count')]
+            sel = df['conflict_n'] != 0
+            y = df.loc[sel, 'conflict_n']
             self.is_norm_scale = False
 
         elif metric == 'Total Elegible Actions':
-            y = df[('diff_secs', 'count')]
-            self.is_norm_scale = False
-
-        elif metric == 'Total Actions':
-            y = df[('action', 'count')]
+            df['elegible_n'] = df[('diff_secs', 'count')]
+            sel = df['elegible_n'] != 0
+            y = df.loc[sel, 'elegible_n']
             self.is_norm_scale = False
 
         elif metric == 'Total Conflict Time':
-            y = df[('diff_secs_confl', 'sum')]
-            self.is_norm_scale = False
-
-        elif metric == 'Total Conflict Time Counts':
-            y = df[('diff_secs_confl', 'count')]
+            sel = ~df[('diff_secs_confl', 'sum')].isnull()
+            y = df.loc[sel, ('diff_secs_confl', 'sum')]
             self.is_norm_scale = False
 
         elif metric == 'Time per Conflict Action':
@@ -119,7 +125,8 @@ class ConflictsListener():
             self.is_norm_scale = False
 
         elif metric == 'Total Elegible Time':
-            y = df[('diff_secs', 'sum')]
+            sel = ~df[('diff_secs', 'sum')].isnull()
+            y = df.loc[sel, ('diff_secs', 'sum')]
             self.is_norm_scale = False
 
         elif metric == 'Time per Elegible Action':

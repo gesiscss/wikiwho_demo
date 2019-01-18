@@ -17,10 +17,10 @@ class ConflictManager:
         revisions (pd.DataFrame): Revisions as per received through the Wikiwho Actions API
     """
 
-    def __init__(self, all_content, revisions, stopwords=True):
+    def __init__(self, all_content, revisions, include_stopwords=False):
         self.all_content = all_content
         self.revisions = self.prepare_revisions(revisions)
-        self.stopwords = stopwords
+        self.include_stopwords = include_stopwords
 
     def calculate(self):
 
@@ -56,7 +56,7 @@ class ConflictManager:
 
     def __get_all_actions(self):
         all_actions = self.fill_first_insertion(self.all_content)
-        if self.stopwords:
+        if self.include_stopwords:
             all_actions = self.remove_stopwords(all_actions)
 
         all_actions = self.wide_to_long(all_actions)
@@ -71,7 +71,7 @@ class ConflictManager:
     def get_elegible(self):
         elegible = self.fill_first_insertion(self.all_content)
         elegible = self.remove_unique_rows(elegible)
-        if self.stopwords:
+        if self.include_stopwords:
             elegible = self.remove_stopwords(elegible)
         elegible = self.wide_to_long(elegible)
         return elegible
@@ -186,7 +186,8 @@ class ConflictManager:
         2. Calculating the log(t, base=3600) soften the curve so that the values are not so extreme. 
         Moreover, it sets 1 hour (3600 secs) as the decisive point in which an undo is more relevant.
         """
-        df['conflict'] = np.log(
+        df['conflict'] = np.nan
+        df.loc[conflicts, 'conflict'] = np.log(
             base) / np.log(df.loc[conflicts, 'time_diff'].astype('timedelta64[s]') + 2)
         return df
 

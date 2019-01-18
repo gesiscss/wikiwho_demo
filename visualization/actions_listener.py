@@ -24,28 +24,30 @@ class ActionsListener():
 
         data = [
             graph_objs.Scatter(
-                x=list(df['year_month']), y=list(df[black]),
+                x=df['year_month'], y=df[black],
                 name=black,
                 marker=dict(color='rgba(0, 0, 0, 1)'))
         ]
 
         if red != 'None':
             data.append(graph_objs.Scatter(
-                x=list(df['year_month']), y=list(df[red]),
+                x=df['year_month'], y=df[red],
                 name=red,
                 marker=dict(color='rgba(255, 0, 0, .8)')))
 
         if blue != 'None':
             data.append(graph_objs.Scatter(
-                x=list(df['year_month']), y=list(df[blue]),
+                x=df['year_month'], y=df[blue],
                 name=blue,
                 marker=dict(color='rgba(0, 128, 43, 1)')))
 
         if green != 'None':
             data.append(graph_objs.Scatter(
-                x=list(df['year_month']), y=list(df[green]),
+                x=df['year_month'], y=df[green],
                 name=green,
                 marker=dict(color='rgba(0, 153, 255, .8)')))
+
+        self.df_plotted = df
 
         layout = graph_objs.Layout(hovermode='closest',
                                    xaxis=dict(title=granularity, ticklen=5,
