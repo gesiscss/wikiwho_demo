@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import plotly
 from plotly import graph_objs
 
@@ -6,17 +7,19 @@ from plotly import graph_objs
 class ConflictsListener():
 
     def __init__(self, df):
+
+        # time diff to seconds
+        df['diff_secs'] = df['time_diff'].dt.total_seconds()
+
+        # conflict time diff to seconds 
+        df['diff_secs_confl'] = np.nan
+        df['diff_secs_confl'] = df.loc[~df['conflict'].isnull(), 'diff_secs']
+
         self.df = df
         self.df_plotted = None
 
     def listen(self, _range, granularity, black, red):
         df = self.df
-
-        # time diff to seconds
-        df['diff_secs'] = df['time_diff'].dt.total_seconds()
-
-        # dates filter
-        # df = df[(df.rev_time >= _range[0]) & (df.rev_time <= _range[1])]
 
         df = df[(df.rev_time.dt.date >= _range[0]) &
                 (df.rev_time.dt.date <= _range[1])]
@@ -25,7 +28,8 @@ class ConflictsListener():
         df = df.groupby(pd.Grouper(
             key='rev_time', freq=granularity[0])).agg({'conflict': ['sum', 'count'],
                                                        'action': ['count'],
-                                                       'diff_secs': ['count', 'sum']}).reset_index()
+                                                       'diff_secs': ['count', 'sum'],
+                                                       'diff_secs_confl': ['count', 'sum']}).reset_index()
 
         self.traces = []
         self.is_norm_scale = True
@@ -68,20 +72,26 @@ class ConflictsListener():
         plotly.offline.iplot({"data": self.traces, "layout": layout})
 
     def __add_trace(self, df, metric, color):
+        sel = df.index
         if metric == 'None':
             return df
-
         elif metric == 'Conflict Score':
             df['conflict_score'] = df[
                 ('conflict', 'sum')] / df[('diff_secs', 'count')]
-            y = df.loc[~df['conflict_score'].isnull(), 'conflict_score']
+            sel = ~df['conflict_score'].isnull()
+            y = df.loc[sel, 'conflict_score']
 
         elif metric == 'Conflict Ratio':
             df['conflict_ratio'] = df[
                 ('conflict', 'count')] / df[('diff_secs', 'count')]
-            y = df.loc[~df['conflict_ratio'].isnull(), 'conflict_ratio']
+            sel = ~df['conflict_ratio'].isnull()
+            y = df.loc[sel, 'conflict_ratio']
 
-        elif metric == 'Total Conflicts':
+        elif metric == 'Absolute Conflict Score':
+            y = df[('conflict', 'sum')]
+            self.is_norm_scale = False
+
+        elif metric == 'Number of Conflicts':
             y = df[('conflict', 'count')]
             self.is_norm_scale = False
 
@@ -93,20 +103,35 @@ class ConflictsListener():
             y = df[('action', 'count')]
             self.is_norm_scale = False
 
-        elif metric == 'Total Time':
+        elif metric == 'Total Conflict Time':
+            y = df[('diff_secs_confl', 'sum')]
+            self.is_norm_scale = False
+
+        elif metric == 'Total Conflict Time Counts':
+            y = df[('diff_secs_confl', 'count')]
+            self.is_norm_scale = False
+
+        elif metric == 'Time per Conflict Action':
+            df['time_per_conflict_action'] = df[
+                ('diff_secs_confl', 'sum')] / df[('diff_secs_confl', 'count')]
+            sel = ~df['time_per_conflict_action'].isnull()
+            y = df.loc[sel, 'time_per_conflict_action']
+            self.is_norm_scale = False
+
+        elif metric == 'Total Elegible Time':
             y = df[('diff_secs', 'sum')]
             self.is_norm_scale = False
 
         elif metric == 'Time per Elegible Action':
             df['time_per_elegible_action'] = df[
                 ('diff_secs', 'sum')] / df[('diff_secs', 'count')]
-            y = df.loc[~df['time_per_elegible_action'].isnull(),
-                       'time_per_elegible_action']
+            sel = ~df['time_per_elegible_action'].isnull()
+            y = df.loc[sel, 'time_per_elegible_action']
             self.is_norm_scale = False
 
         self.traces.append(
             graph_objs.Scatter(
-                x=df['rev_time'], y=y,
+                x=df.loc[sel,'rev_time'], y=y,
                 name=metric,
                 marker=dict(color=color))
         )
