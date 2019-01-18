@@ -59,7 +59,6 @@ class OwnedListener():
                 df = df[df['rev_time'] <= rev_time]
                 last_action = df.groupby('token_id').last()
                 surv = last_action[last_action['action'] != 'out']
-
                 _x.append(rev_time)
                 _y.append(
                     100 * len(surv[surv['o_editor'] == self.editor]) / len(surv))
