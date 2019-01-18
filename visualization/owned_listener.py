@@ -6,7 +6,7 @@ from plotly import graph_objs
 class OwnedListener():
 
     def __init__(self, df, editor):
-        self.df = df.sort_values(['token_id', 'rev_time'], ascending=True)
+        self.df = df.sort_values(['token_id', 'rev_time'], ascending=True).set_index('token_id')
         self.editor = editor
         self.df_plotted = None
 
@@ -41,7 +41,6 @@ class OwnedListener():
         plotly.offline.iplot({"data": self.traces, "layout": layout})
 
     def __add_trace(self, df, trace, color):
-        _x = []
         _y = []
 
         if trace == 'Tokens Owned':
@@ -50,22 +49,20 @@ class OwnedListener():
                 df = df[df['rev_time'] <= rev_time]
                 last_action = df.groupby('token_id').last()
                 surv = last_action[last_action['action'] != 'out']
-
-                _x.append(rev_time)
                 _y.append(len(surv[surv['o_editor'] == self.editor]))
 
         elif trace == 'Tokens Owned (%)':
             for rev_time in self.doi:
                 df = df[df['rev_time'] <= rev_time]
+                print(df.shape)
                 last_action = df.groupby('token_id').last()
                 surv = last_action[last_action['action'] != 'out']
-                _x.append(rev_time)
                 _y.append(
                     100 * len(surv[surv['o_editor'] == self.editor]) / len(surv))
 
         self.traces.append(
             graph_objs.Scatter(
-                x=pd.Series(_x), y=_y,
+                x=self.doi, y=_y,
                 name=trace,
                 marker=dict(color=color))
         )
