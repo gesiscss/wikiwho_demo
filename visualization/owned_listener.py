@@ -61,7 +61,7 @@ class OwnedListener():
 
         self.traces.append(
             graph_objs.Scatter(
-                x=self.doi, y=_y,
+                x=pd.Series(self.doi), y=_y,
                 name=trace,
                 marker=dict(color=color))
         )
