@@ -54,7 +54,6 @@ class OwnedListener():
         elif trace == 'Tokens Owned (%)':
             for rev_time in self.doi:
                 df = df[df['rev_time'] <= rev_time]
-                print(df.shape)
                 last_action = df.groupby('token_id').last()
                 surv = last_action[last_action['action'] != 'out']
                 _y.append(
