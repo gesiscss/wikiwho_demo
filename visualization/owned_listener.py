@@ -40,7 +40,7 @@ class OwnedListener():
         df = self.summ
 
         if len(df) == 0:
-            display(md("***It is not possible to plot the tokens owned because this editor have never owned any token.***"))
+            display(md("***It is not possible to plot the tokens owned because this editor has never owned any token.***"))
             return
 
         df = df[(df.day.dt.date >= _range[0]) &
