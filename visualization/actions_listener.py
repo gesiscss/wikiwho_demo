@@ -5,8 +5,9 @@ from plotly import graph_objs
 
 class ActionsListener():
 
-    def __init__(self, df):
+    def __init__(self, df, editor_column='name'):
         self.df = df
+        self.editor_column = editor_column
         self.df_plotted = None
 
     def listen(self, _range, editor, granularity,
@@ -17,7 +18,7 @@ class ActionsListener():
                 (df.year_month.dt.date <= _range[1])]
 
         if editor != 'All':
-            df = df[df['name'] == editor]
+            df = df[df[self.editor_column] == editor]
 
         df = df.groupby(pd.Grouper(
             key='year_month', freq=granularity[0])).sum().reset_index()
