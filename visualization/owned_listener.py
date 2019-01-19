@@ -1,7 +1,9 @@
+import datetime
+
+import numpy as np
 import pandas as pd
 import plotly
 from plotly import graph_objs
-import datetime
 from IPython.display import display, Markdown as md
 
 class OwnedListener():
@@ -10,16 +12,18 @@ class OwnedListener():
         self.df = df.sort_values(['token_id', 'rev_time'], ascending=True).set_index('token_id')
         self.editor = editor
 
-        self.days = days = pd.Series(df.loc[df['o_editor'] == editor, 'rev_time'
-            ].dt.to_period('D').unique()).sort_values(ascending=False)
+        self.days = df.loc[df['o_editor'] == editor, 'rev_time'
+            ].dt.to_period('D').unique()
+        today = pd.Period(datetime.datetime.today(), freq='D')
+        self.days = pd.Series(np.append(self.days, today)).sort_values(ascending=False)
 
-        if len(days) > 0:
-            days = self.days.dt.to_timestamp('D') + pd.DateOffset(1)
+        if len(self.days) > 0:
+            self.days = self.days.dt.to_timestamp('D') + pd.DateOffset(1)
 
             _all = []
             _abs = []
             df = self.df
-            for rev_time in days:
+            for rev_time in self.days:
                 df = df[df['rev_time'] <= rev_time]
                 last_action = df.groupby('token_id').last()
                 surv = last_action[last_action['action'] != 'out']
@@ -27,7 +31,7 @@ class OwnedListener():
                 _all.append(len(surv))
 
             self.summ = pd.DataFrame({
-                'day': days,
+                'day': self.days,
                 'abs': _abs,
                 'all': _all
                 })
