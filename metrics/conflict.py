@@ -56,7 +56,7 @@ class ConflictManager:
 
     def __get_all_actions(self):
         all_actions = self.fill_first_insertion(self.all_content)
-        if self.include_stopwords:
+        if not self.include_stopwords:
             all_actions = self.remove_stopwords(all_actions)
 
         all_actions = self.wide_to_long(all_actions)
@@ -71,7 +71,7 @@ class ConflictManager:
     def get_elegible(self):
         elegible = self.fill_first_insertion(self.all_content)
         elegible = self.remove_unique_rows(elegible)
-        if self.include_stopwords:
+        if not self.include_stopwords:
             elegible = self.remove_stopwords(elegible)
         elegible = self.wide_to_long(elegible)
         return elegible
