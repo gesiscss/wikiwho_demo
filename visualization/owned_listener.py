@@ -2,70 +2,69 @@ import pandas as pd
 import plotly
 from plotly import graph_objs
 import datetime
+from IPython.display import display, Markdown as md
 
 class OwnedListener():
 
     def __init__(self, df, editor):
         self.df = df.sort_values(['token_id', 'rev_time'], ascending=True).set_index('token_id')
         self.editor = editor
-        self.days = days = pd.Series(df.loc[df['o_editor'] == editor, 'rev_time'].dt.to_period('D').unique()).sort_values(ascending=False)
 
-        days = self.days.dt.to_timestamp('D') + pd.DateOffset(1)
+        self.days = days = pd.Series(df.loc[df['o_editor'] == editor, 'rev_time'
+            ].dt.to_period('D').unique()).sort_values(ascending=False)
 
-        _all = []
-        _abs = []
-        df = self.df
-        for rev_time in days:
-            df = df[df['rev_time'] <= rev_time]
-            last_action = df.groupby('token_id').last()
-            surv = last_action[last_action['action'] != 'out']
-            _abs.append(sum(surv['o_editor'] == self.editor))
-            _all.append(len(surv))
+        if len(days) > 0:
+            days = self.days.dt.to_timestamp('D') + pd.DateOffset(1)
 
-        self.summ = pd.DataFrame({
-            'day': days,
-            'abs': _abs,
-            'all': _all
-            })
-        self.summ['res'] = 100 * self.summ['abs'] / self.summ['all']
+            _all = []
+            _abs = []
+            df = self.df
+            for rev_time in days:
+                df = df[df['rev_time'] <= rev_time]
+                last_action = df.groupby('token_id').last()
+                surv = last_action[last_action['action'] != 'out']
+                _abs.append(sum(surv['o_editor'] == self.editor))
+                _all.append(len(surv))
 
-        self.df_plotted = None
+            self.summ = pd.DataFrame({
+                'day': days,
+                'abs': _abs,
+                'all': _all
+                })
+            self.summ['res'] = 100 * self.summ['abs'] / self.summ['all']
+        else:
+            self.summ = pd.DataFrame([], columns = ['day', 'abs', 'all', 'res'])
 
     def listen(self, _range, granularity, trace):
-        df = self.df
 
-        df = df[(df.rev_time.dt.date >= _range[0]) &
-                (df.rev_time.dt.date <= _range[1] + datetime.timedelta(days=1))]
+        df = self.summ
 
-        self.doi = pd.Series(self.days.dt.to_timestamp(granularity[0]).unique()) + pd.DateOffset(1)
+        if len(df) == 0:
+            display(md("***It is not possible to plot the tokens owned because this editor have never owned any token.***"))
+            return
+
+        df = df[(df.day.dt.date >= _range[0]) &
+                (df.day.dt.date <= _range[1] + datetime.timedelta(days=1))].copy()
+
         self.traces = []
-        self.is_norm_scale = True
-
         if trace == 'Tokens Owned':
-            self.is_norm_scale = False
-            _df = self.summ
-            _df['time'] = _df['day'].dt.to_period(granularity[0]).dt.to_timestamp(granularity[0])
-            _df = _df[~_df.duplicated(subset='time', keep='first')]
-            _y = _df['abs']
+            _range = None
+            df['time'] = df['day'].dt.to_period(granularity[0]).dt.to_timestamp(granularity[0])
+            df = df[~df.duplicated(subset='time', keep='first')]
+            _y = df['abs']
 
         elif trace == 'Tokens Owned (%)':
-            _df = self.summ
-            _df['time'] = _df['day'].dt.to_period(granularity[0]).dt.to_timestamp(granularity[0])
-            _df = _df[~_df.duplicated(subset='time', keep='first')]
-            _y = _df['res']
+            _range = [0, 100]
+            df['time'] = df['day'].dt.to_period(granularity[0]).dt.to_timestamp(granularity[0])
+            df = df[~df.duplicated(subset='time', keep='first')]
+            _y = df['res']
             
         self.traces.append(
             graph_objs.Scatter(
-                x=_df['time'], y=_y,
+                x=df['time'], y=_y,
                 name=trace,
                 marker=dict(color='rgba(255, 0, 0, .5)'))
         )
-
-        self.__add_trace(df, trace, 'rgba(0,0,255, .5)')
-
-        _range = None
-        if self.is_norm_scale:
-            _range = [0, 100]
 
         layout = graph_objs.Layout(hovermode='closest',
                                    xaxis=dict(title=granularity, ticklen=5,
@@ -80,30 +79,3 @@ class OwnedListener():
         plotly.offline.init_notebook_mode(connected=True)
         plotly.offline.iplot({"data": self.traces, "layout": layout})
 
-    def __add_trace(self, df, trace, color):
-        _y = []
-
-        if trace == 'Tokens Owned':
-            self.is_norm_scale = False
-            for rev_time in self.doi:
-                df = df[df['rev_time'] <= rev_time]
-                last_action = df.groupby('token_id').last()
-                surv = last_action[last_action['action'] != 'out']
-                _y.append(len(surv[surv['o_editor'] == self.editor]))
-
-        elif trace == 'Tokens Owned (%)':
-            for rev_time in self.doi:
-                df = df[df['rev_time'] <= rev_time]
-                last_action = df.groupby('token_id').last()
-                surv = last_action[last_action['action'] != 'out']
-                _y.append(
-                    100 * len(surv[surv['o_editor'] == self.editor]) / len(surv))
-
-        self.traces.append(
-            graph_objs.Scatter(
-                x=self.doi, y=_y,
-                name=trace,
-                marker=dict(color=color))
-        )
-
-        return df
