@@ -1,4 +1,3 @@
-
 import numpy as np
 import pandas as pd
 
@@ -7,7 +6,6 @@ class ConflictManager:
 
     """In charge of calculating the conflict meassurements, and all the related dataframes
     with intermediate steps.
-
     Attributes:
         all_content (pd.DataFrame): All content as per received through the Wikiwho Actions API
         conflicts (pd.DataFrame): The actions that have conflicts
@@ -31,11 +29,11 @@ class ConflictManager:
         elegible = self.merge_actions_and_revisions(
             elegible, self.revisions)
 
-        print('Calculate time differences of undos')
-        elegible = self.__calculate_time_diffs(elegible)
-
         print('Get the conflicts')
         self.__conflicts = self.__get_conflicts(elegible)
+        
+        print('Calculate time differences of undos')
+        elegible = self.__calculate_time_diffs(elegible)
 
         print('Get elegible_actions')
         self.__elegible_actions = self.__get_elegible_actions(elegible)
@@ -49,11 +47,12 @@ class ConflictManager:
         self.all_actions = self.__get_all_actions()
 
         return self.elegible
-
-    def get_conflicting_actions(self, editor):
-        return self.elegible[self.__conflicts.shift(-1) & (
-            self.elegible.shift(-1)['editor'] == editor)]
-
+    
+    def prepare_revisions(self, revisions):
+        revisions = revisions.rename(columns={'o_editor': 'editor'})
+        revisions['rev_time'] = pd.to_datetime(revisions['rev_time'])
+        return revisions
+    
     def __get_all_actions(self):
         all_actions = self.fill_first_insertion(self.all_content)
         if not self.include_stopwords:
@@ -62,11 +61,6 @@ class ConflictManager:
         all_actions = self.wide_to_long(all_actions)
         all_actions = all_actions[all_actions['rev_id'] != -1]
         return self.merge_actions_and_revisions(all_actions, self.revisions)
-
-    def prepare_revisions(self, revisions):
-        revisions = revisions.rename(columns={'o_editor': 'editor'})
-        revisions['rev_time'] = pd.to_datetime(revisions['rev_time'])
-        return revisions
 
     def get_elegible(self):
         elegible = self.fill_first_insertion(self.all_content)
@@ -83,18 +77,17 @@ class ConflictManager:
         actions.loc[actions['in'] == -1,
                     'in'] = actions.loc[actions['in'] == -1, 'o_rev_id']
         return actions
-
+    
     def remove_unique_rows(self, actions):
         """ A token that just have one row will nor cause any conflict neither the insertions
         or deletions can be undos, so they are removed. In order for a conflict to exist,
         there should be at least three actions, and tokens with on row only have maximum two: 
         the first insertion and a possible deletion.
-
         """
         return actions[actions.duplicated(subset=['token_id'], keep=False)]
 
     def remove_stopwords(self, actions, stopwords_fn='data/stopword_list.txt'):
-        """Open a list of stop words and remove the from the dataframe the tokens that 
+        """Open a list of stop words and remove from the dataframe the tokens that 
         belong to this list.
         """
         stop_words = open(stopwords_fn, 'r').read().split()
@@ -129,30 +122,33 @@ class ConflictManager:
         # first calculate the times for all cases. This will produce some errors because
         # the shift is not aware of the tokens (revision times should belong to the same
         # token). This errors are removed in the next lines
-        df['time_diff'] = df['rev_time'] - df.shift(2)['rev_time']
-
+        
+        # changed:  instead of shifting by 2, shifting by 1
+        df['time_diff'] = df['rev_time'] - df.shift(1)['rev_time']
+        
         # the errors are produced in the first two actions (first insertion and deletion) of
         # each token. The first insertion and deletion are guaranteed to exist because duplicates
         # were removed.
+        
         to_delete = (
-            # First row of each token
-            (df['o_rev_id'] == df['rev_id']) |
-            # Second row of each token
-            (df.shift(1)['o_rev_id'] == df.shift(1)['rev_id']))
+             #First row of each token
+             (df['o_rev_id'] == df['rev_id']))
+             #Second row of each token
+             #(df.shift(1)['o_rev_id'] == df.shift(1)['rev_id']))
 
         # delete but keep the row
         df.loc[to_delete, 'time_diff'] = np.nan
 
         # For testing the above
-        if False:
-            # this line is equivalent and clearer to the above 3 but much
-            # slower)
-            df['time_diff2'] = df.groupby('token_id').apply(
-                lambda group: group['rev_time'] - group.shift(2)['rev_time']).values
+        #if False:
+             #this line is equivalent and clearer to the above 3 but much
+             #slower)
+            #df['time_diff2'] = df.groupby('token_id').apply(
+                #lambda group: group['rev_time'] - group.shift(2)['rev_time']).values
 
-            # this is for testing the two methods
-            if (df['time_diff'].fillna(-1) == df['time_diff2'].fillna(-1)).all():
-                print('Group by is equivalent to flat operations')
+             #this is for testing the two methods
+            #if (df['time_diff'].fillna(-1) == df['time_diff2'].fillna(-1)).all():
+                #print('Group by is equivalent to flat operations')
 
         return df
 
@@ -163,10 +159,14 @@ class ConflictManager:
         2. delection-insertion-deletion of the same token, where the editor is the same for the
         deletions but different from the insertions.
         """
+        # what it should be:
+        # the token is the same as the previous
+        # out editor is different from in or vice versa
+        # changed: we do not consider a conflict only those actions, where the revision is made 
+        #by the same user or the first insertion.
+
         return ((df['token_id'] == df.shift(1)['token_id']) &
-                (df['token_id'] == df.shift(2)['token_id']) &
-                (df['editor'] != df.shift(1)['editor']) &
-                (df['editor'] == df.shift(2)['editor']))
+                (df['editor'] != df.shift(1)['editor']))
 
     def __get_elegible_actions(self, df):
         """ Since the difference of time is calculated based on the 2nd previous row 
@@ -186,14 +186,16 @@ class ConflictManager:
         2. Calculating the log(t, base=3600) soften the curve so that the values are not so extreme. 
         Moreover, it sets 1 hour (3600 secs) as the decisive point in which an undo is more relevant.
         """
+        #changed: time_diff is not calculated for the first insertion so we can emit this checking
         df['conflict'] = np.nan
-        df.loc[conflicts, 'conflict'] = np.log(
-            base) / np.log(df.loc[conflicts, 'time_diff'].astype('timedelta64[s]') + 2)
+        df.loc[conflicts, ['conflict']] = np.log(
+            base) / np.log(df['time_diff'].astype('timedelta64[s]') + 2)
+
         return df
 
     def get_page_conflict_score(self):
         """ This calculates a total conflict score for the page. It adds all the conflicts 
-        and divide them by the summ of all elegible actions (i.e. actions that have the potential
+        and divide them by the sum of all elegible actions (i.e. actions that have the potential
         of being undos)
         """
 
@@ -203,9 +205,9 @@ class ConflictManager:
             return (self.elegible.loc[self.__conflicts, 'conflict'].sum() /
                     self.elegible_actions.shape[0])
 
-    def get_page_conflict_score2(self):
-        return (self.elegible.loc[self.__conflicts, 'conflict'].sum() /
-                len(self.elegible['rev_id'] == self.elegible['o_rev_id']))
+    #def get_page_conflict_score2(self):
+        #return (self.elegible.loc[self.__conflicts, 'conflict'].sum() /
+                #len(self.elegible['rev_id'] == self.elegible['o_rev_id']))
 
     def get_conflict_score_per_editor(self):
         """ This calculates an score per editor. It adds all the conflicts per editor, and 
@@ -232,11 +234,3 @@ class ConflictManager:
 
         # return the result sorted in descending order
         return joined.sort_values('conflict_score', ascending=False)
-
-    # c_t = np.log(3600) / (
-    #     np.log(
-    #         dups_dated.loc[conflicts,['token_id','time_diff']].groupby(
-    #             'token_id').sum().astype('timedelta64[s]') + 2
-    #     ))
-
-    # c_t.sum()
