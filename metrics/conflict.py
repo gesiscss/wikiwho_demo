@@ -1,6 +1,3 @@
-
-
-
 import numpy as np
 import pandas as pd
 
@@ -37,7 +34,6 @@ class ConflictManager:
         
         print('Calculate time differences of undos')
         elegible = self.__calculate_time_diffs(elegible)
-        elegible.head()
 
         print('Get elegible_actions')
         self.__elegible_actions = self.__get_elegible_actions(elegible)
@@ -46,7 +42,7 @@ class ConflictManager:
         self.elegible = self.calculate_token_conflict_score(
             elegible, self.__conflicts)
 
-        self.conflicts = self.elegible[self.__conflicts['is_a_conflict']]
+        self.conflicts = self.elegible[self.__conflicts]
         self.elegible_actions = self.elegible[self.__elegible_actions]
         self.all_actions = self.__get_all_actions()
 
@@ -128,7 +124,6 @@ class ConflictManager:
         # token). This errors are removed in the next lines
         
         # changed:  instead of shifting by 2, shifting by 1
-        
         df['time_diff'] = df['rev_time'] - df.shift(1)['rev_time']
         
         # the errors are produced in the first two actions (first insertion and deletion) of
@@ -169,9 +164,9 @@ class ConflictManager:
         # out editor is different from in or vice versa
         # changed: we do not consider a conflict only those actions, where the revision is made 
         #by the same user or the first insertion.
-        df['is_a_conflict'] = ((df['token_id'] == df.shift(1)['token_id']) &
+
+        return ((df['token_id'] == df.shift(1)['token_id']) &
                 (df['editor'] != df.shift(1)['editor']))
-        return df
 
     def __get_elegible_actions(self, df):
         """ Since the difference of time is calculated based on the 2nd previous row 
@@ -193,7 +188,7 @@ class ConflictManager:
         """
         #changed: time_diff is not calculated for the first insertion so we can emit this checking
         df['conflict'] = np.nan
-        df.loc[df['is_a_conflict']==True, ['conflict']] = np.log(
+        df.loc[conflicts, ['conflict']] = np.log(
             base) / np.log(df['time_diff'].astype('timedelta64[s]') + 2)
 
         return df
@@ -207,7 +202,7 @@ class ConflictManager:
         if (self.elegible_actions.shape[0] == 0):
             return 0
         else:
-            return (self.elegible.loc[self.__conflicts['is_a_conflict'], 'conflict'].sum() /
+            return (self.elegible.loc[self.__conflicts, 'conflict'].sum() /
                     self.elegible_actions.shape[0])
 
     #def get_page_conflict_score2(self):
@@ -234,8 +229,8 @@ class ConflictManager:
         joined = confs_n.join(confs_ed).join(actions)
 
         # calculate the score of the editor dividing conflicts / actions
-        joined['conflict_score_ed'] = joined['conflict'] / joined['action']
+        joined['conflict_score'] = joined['conflict'] / joined['action']
         joined['conflict_ratio'] = joined['conflict_n'] / joined['action']
 
         # return the result sorted in descending order
-        return joined.sort_values('conflict', ascending=False)
+        return joined.sort_values('conflict_score', ascending=False)
