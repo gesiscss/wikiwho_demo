@@ -128,7 +128,7 @@ class ConflictManager:
         # token). This errors are removed in the next lines
         
         # changed:  instead of shifting by 2, shifting by 1
-        df['time_diff'] = 0
+        
         df['time_diff'] = df['rev_time'] - df.shift(1)['rev_time']
         
         # the errors are produced in the first two actions (first insertion and deletion) of
