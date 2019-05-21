@@ -63,8 +63,14 @@ class ConflictManager:
         return self.merge_actions_and_revisions(all_actions, self.revisions)
 
     def get_elegible(self):
-        elegible = self.fill_first_insertion(self.all_content)
-        elegible = self.remove_unique_rows(elegible)
+        # by not adding the first revisions (i.e. it remains -1), the merge won't succeed; 
+        # therefore the time differences of the first output will be NaN and not taken as 
+        # an elegible action. The first deletion is never considered as a conflict, therefore
+        # it is not elegible.
+
+        # elegible = self.fill_first_insertion(self.all_content)
+
+        elegible = self.remove_unique_rows(self.all_content)
         if not self.include_stopwords:
             elegible = self.remove_stopwords(elegible)
         elegible = self.wide_to_long(elegible)
