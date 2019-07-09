@@ -16,6 +16,7 @@ class OwnedListener():
             ].dt.to_period('D').unique()
         today = pd.Period(datetime.datetime.today(), freq='D')
         self.days = pd.Series(np.append(self.days, today)).sort_values(ascending=False)
+        self.df['rev_time'] = pd.to_datetime(self.df['rev_time']).dt.tz_localize(None)
 
         if len(self.days) > 0:
             self.days = self.days.dt.to_timestamp('D') + pd.DateOffset(1)
@@ -24,6 +25,7 @@ class OwnedListener():
             _abs = []
             df = self.df
             for rev_time in self.days:
+                
                 df = df[df['rev_time'] <= rev_time]
                 last_action = df.groupby('token_id').last()
                 surv = last_action[last_action['action'] != 'out']

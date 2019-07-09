@@ -133,6 +133,11 @@ class ConflictsListener():
             y = df.loc[sel, 'total_stopword_count_n']
             self.is_norm_scale = False
 
+        elif metric == 'Total Elegible Actions':
+            df['elegibles_n'] = df[('elegibles', 'sum')]
+            sel = df['elegibles_n'] != 0
+            y = df.loc[sel, 'elegibles_n']
+            self.is_norm_scale = False
 
         self.traces.append(
             graph_objs.Scatter(
