@@ -9,11 +9,11 @@ class ConflictsListener():
     def __init__(self, df):
 
         # time diff to seconds
-        df['diff_secs'] = df['time_diff'].dt.total_seconds()
+        #df['diff_secs'] = df['time_diff'].dt.total_seconds()
 
         # conflict time diff to seconds 
-        df['diff_secs_confl'] = np.nan
-        df['diff_secs_confl'] = df.loc[~df['conflict'].isnull(), 'diff_secs']
+        #df['diff_secs_confl'] = np.nan
+        #df['diff_secs_confl'] = df.loc[~df['conflict'].isnull(), 'diff_secs']
 
         self.df = df
         self.df_plotted = None
@@ -21,19 +21,22 @@ class ConflictsListener():
     def listen(self, _range, granularity, black, red):
         df = self.df
 
-        df = df[(df.rev_time.dt.date >= _range[0]) &
-                (df.rev_time.dt.date <= _range[1])]
+        df = df[(df.year_month.dt.date >= _range[0]) &
+                (df.year_month.dt.date <= _range[1])]
 
         # calculate the aggreated values
         df = df.groupby(pd.Grouper(
-            key='rev_time', freq=granularity[0])).agg({'conflict': ['sum', 'count'],
-                                                       'action': ['count'],
-                                                       'diff_secs': ['count', 'sum'],
-                                                       'diff_secs_confl': ['count', 'sum']}).reset_index()
+            key='year_month', freq=granularity[0])).agg({'conflicts': ['sum'],
+                                                       'elegibles': ['sum'],
+                                                       'revisions': ['sum'],
+                                                       'conflict': ['count', 'sum'],
+                                                        'total': ['sum'],
+                                                        'total_surv_48h': ['sum'],
+                                                        'total_persistent': ['sum'],
+                                                        'total_stopword_count': ['sum']}).reset_index()
 
         df.loc[df[('conflict', 'count')] == 0, ('conflict', 'sum')] = np.nan
-        df.loc[df[('diff_secs', 'count')] == 0, ('diff_secs', 'sum')] = np.nan
-        df.loc[df[('diff_secs_confl', 'count')] == 0, ('diff_secs_confl', 'sum')] = np.nan
+        #df.loc[df[('conflicts', 'count')] == 0, ('diff_secs', 'sum')] = np.nan
 
         self.traces = []
         self.is_norm_scale = True
@@ -83,14 +86,14 @@ class ConflictsListener():
             return df
         elif metric == 'Conflict Score':
             df['conflict_score'] = df[
-                ('conflict', 'sum')] / df[('diff_secs', 'count')]
+                ('conflict', 'sum')] / df[('elegibles', 'sum')]
             sel = ~df['conflict_score'].isnull()
             y = df.loc[sel, 'conflict_score']
             self.is_norm_scale = False
 
         elif metric == 'Conflict Ratio':
             df['conflict_ratio'] = df[
-                ('conflict', 'count')] / df[('diff_secs', 'count')]
+                ('conflicts', 'sum')] / df[('elegibles', 'sum')]
             sel = ~(df['conflict_ratio'].isnull() |  (df[('conflict', 'count')] == 0))
             y = df.loc[sel, 'conflict_ratio']
 
@@ -101,44 +104,44 @@ class ConflictsListener():
             self.is_norm_scale = False
 
         elif metric == 'Number of Conflicts':
-            df['conflict_n'] = df[('conflict', 'count')]
+            df['conflict_n'] = df[('conflicts', 'sum')]
             sel = df['conflict_n'] != 0
             y = df.loc[sel, 'conflict_n']
             self.is_norm_scale = False
 
+        elif metric == 'Total':
+            df['total_n'] = df[('total', 'sum')]
+            sel = df['total_n'] != 0
+            y = df.loc[sel, 'total_n']
+            self.is_norm_scale = False
+            
+        elif metric == 'Total_surv_48h':
+            df['total_surv_48h_n'] = df[('total_surv_48h', 'sum')]
+            sel = df['total_surv_48h_n'] != 0
+            y = df.loc[sel, 'total_surv_48h_n']
+            self.is_norm_scale = False
+
+        elif metric == 'Total_persistent':
+            df['total_persistent_n'] = df[('total_persistent', 'sum')]
+            sel = df['total_persistent_n'] != 0
+            y = df.loc[sel, 'total_persistent_n']
+            self.is_norm_scale = False
+            
+        elif metric == 'Total_stopword_count':
+            df['total_stopword_count_n'] = df[('total_stopword_count', 'sum')]
+            sel = df['total_stopword_count_n'] != 0
+            y = df.loc[sel, 'total_stopword_count_n']
+            self.is_norm_scale = False
+
         elif metric == 'Total Elegible Actions':
-            df['elegible_n'] = df[('diff_secs', 'count')]
-            sel = df['elegible_n'] != 0
-            y = df.loc[sel, 'elegible_n']
-            self.is_norm_scale = False
-
-        elif metric == 'Total Conflict Time':
-            sel = ~df[('diff_secs_confl', 'sum')].isnull()
-            y = df.loc[sel, ('diff_secs_confl', 'sum')]
-            self.is_norm_scale = False
-
-        elif metric == 'Time per Conflict Action':
-            df['time_per_conflict_action'] = df[
-                ('diff_secs_confl', 'sum')] / df[('diff_secs_confl', 'count')]
-            sel = ~df['time_per_conflict_action'].isnull()
-            y = df.loc[sel, 'time_per_conflict_action']
-            self.is_norm_scale = False
-
-        elif metric == 'Total Elegible Time':
-            sel = ~df[('diff_secs', 'sum')].isnull()
-            y = df.loc[sel, ('diff_secs', 'sum')]
-            self.is_norm_scale = False
-
-        elif metric == 'Time per Elegible Action':
-            df['time_per_elegible_action'] = df[
-                ('diff_secs', 'sum')] / df[('diff_secs', 'count')]
-            sel = ~df['time_per_elegible_action'].isnull()
-            y = df.loc[sel, 'time_per_elegible_action']
+            df['elegibles_n'] = df[('elegibles', 'sum')]
+            sel = df['elegibles_n'] != 0
+            y = df.loc[sel, 'elegibles_n']
             self.is_norm_scale = False
 
         self.traces.append(
             graph_objs.Scatter(
-                x=df.loc[sel,'rev_time'], y=y,
+                x=df.loc[sel,'year_month'], y=y,
                 name=metric,
                 marker=dict(color=color))
         )
