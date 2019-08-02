@@ -51,4 +51,4 @@ Submit the issue to GitLab if you find one, and feel free to submit pull request
 
 ## Supervisor
 
-*  Dr. Fabian Flöck
+*  Dr. Fabian Flöck (@faflo)
