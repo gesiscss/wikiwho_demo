@@ -41,12 +41,14 @@ Submit the issue to GitLab if you find one, and feel free to submit pull request
 
 ## Contributors
 
-*  @bheibel 
-*  @fkramer 
-*  @rlafraie 
-*  @vibhav 
+* @robertour
+* @stannida
+* @Tara-Morovatdar
+* @bheibel 
+* @fkramer 
+* @rlafraie 
+* @vibhav 
 
-## Special Thanks
+## Supervisor
 
 *  Dr. Fabian Flöck
-*  JProf. Dr. Claudia Wagner
