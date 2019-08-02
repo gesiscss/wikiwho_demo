@@ -47,7 +47,12 @@ class ConflictManager:
         self.all_actions = self.__get_all_actions()
 
         return self.elegible
-    
+
+    def get_conflicting_actions(self, editor):
+        return self.elegible[self.__conflicts.shift(-1) & (
+            self.elegible.shift(-1)['editor'] == editor)]
+
+
     def prepare_revisions(self, revisions):
         revisions = revisions.rename(columns={'o_editor': 'editor'})
         revisions['rev_time'] = pd.to_datetime(revisions['rev_time'])

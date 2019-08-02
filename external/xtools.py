@@ -36,7 +36,7 @@ class XtoolsDV(DataView):
         return pd.Series({
             'Created pages:': count['count'],
             'Deleted pages': count['deleted'],
-            'Redirected pages': count['redirects']
+            #'Redirected pages': count['redirects']
         })
 
     def get_created_pages_per_editor(self, editor):
@@ -107,6 +107,7 @@ class XtoolsAPI(API):
         Returns:
             dict: basic information about the history of a page.
         """
+        print(f'{self.base}user/pages_count/{self.project}/{editor_name}')
 
         return self.request(f'{self.base}user/pages_count/{self.project}/{editor_name}')
 
@@ -119,9 +120,5 @@ class XtoolsAPI(API):
         Returns:
             dict: basic information about the history of a page.
         """
-
-        print(f'{self.base}user/pages/{self.project}/{editor_name}')
-        
-
 
         return self.request(f'{self.base}user/pages/{self.project}/{editor_name}')
