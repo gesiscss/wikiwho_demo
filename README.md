@@ -6,7 +6,7 @@
 
 ## Description
 
-This interactive demonstration shows some of the ways in which data from the WikiWho API (together with other sources) can be used to explore article editing dynamics as well as shed light on the edit history of specific users. 
+This interactive demonstration shows some of the ways in which data from the [WikiWho API](https://api.wikiwho.net) (together with other sources) can be used to explore article editing dynamics as well as shed light on the edit history of specific users. 
 
 Particuarly, the notebooks it contains help in determining and expressing the impact of a Wikipedia user regarding her participation or production of knowledge in articles. The visualizations provided can be used to study the outcomes of various editing dynamics on the articles and by playing with parameters and metrics we have defined and explain, the user can uncover new patterns. 
 
