@@ -16,7 +16,7 @@ Particuarly, the notebooks it contains help in determining and expressing the im
 
 The demo needs no programming knowledge to be used, but offers transparency by simply masking code behind Jupyter's "App mode", allowing more experienced users to dive into the mechanics of the API calls and calculations behind it and immediately modfiy it for their own purpose. 
 
-**Live data estimation**
+**Live data**
 
 All data used comes from live systems (Wikipedia directly or Wikiwho) for the English languge version of Wikipedia, reflecting the current article status. 
 
