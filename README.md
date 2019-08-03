@@ -2,42 +2,42 @@
 <img src="https://user-images.githubusercontent.com/35532045/36342863-ba470006-1404-11e8-9f9f-d1249e4a0b37.png" width="100">
 <img src="https://user-images.githubusercontent.com/35532045/35407485-6c779c5a-020c-11e8-9060-5c35e09a0124.png" width="200">
 
-# Wiki-Impact
+# WikiWho Demo
 
 ## Description
 
-Wiki-Impact helps in determining and expressing the impact of a Wikipedia user regarding his participation or production of knowledge in articles. The Visualization can be analysed to study the outcomes of various impacts the articles have and certain parameters can be studied with the help of well defined metrics. 
+This interactive demonstration shows some of the ways in which data from the WikiWho API (together with other sources) can be used to explore article editing dynamics as well as shed light on the edit history of specific users. 
+
+Particuarly, the notebooks it contains help in determining and expressing the impact of a Wikipedia user regarding her participation or production of knowledge in articles. The visualizations provided can be used to study the outcomes of various editing dynamics on the articles and by playing with parameters and metrics we have defined and explain, the user can uncover new patterns. 
 
 ## Features
 
+**No coding skills needed, but code is transparent**
+
+The demo needs no programming knowledge to be used, but offers transparency by simply masking code behind Jupyter's "App mode", allowing more experienced users to dive into the mechanics of the API calls and calculations behind it and immediately modfiy it for their own purpose. 
+
 **Live data estimation**
 
-With Wiki-Impact the analysis can be done on the current live data and the outcomes can be studied accordingly. 
-
-**Estimated knowledge in numbers**
-
-With Wiki-Impact certain metrics like Conflict Score, TopXarticles can be studies on numerical basis and thus reasoning can be obtained in numbers.
+All data used comes from live systems (Wikipedia directly or Wikiwho) for the English languge version of Wikipedia, reflecting the current article status. 
 
 
-## Getting Started with Wiki-Impact
 
-**You're going to need:**
+## Getting Started with this Demo
+
+**Instant start**
+Use the Binder link above to run the notebooks.  Then select the article you want to search and to visualize. First explore an article; go through the notebooks (which will open in different tabs in your browser) in order and you will be further on be able to also inspect users more in details. 
+You can switch between the various notebooks. 
+
+**For a local installation you're going to need:**
 
 *  Windows, Linux or OS X
 *  Python version 3.6
 *  Jupyter Notebook Framework
 
-**Getting Set Up**
-
-Use MyBinder to run the notebooks and further enter parameters in them which you want to search and to visualize. You can further navigate between various notebooks.
-
-**Note**
-
-While starting up the project you can either enter the parameters of your own choice or can further use the pre defined datasets provided by us.
 
 ## Need Help? Found a bug?
 
-Submit the issue to GitLab if you find one, and feel free to submit pull requests with bug fixes or changes.
+Submit the issue to GitHub if you find one, and feel free to submit pull requests with bug fixes or changes.
 
 ## Contributors
 
