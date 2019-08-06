@@ -108,6 +108,12 @@ class ConflictsListener():
             sel = df['conflict_n'] != 0
             y = df.loc[sel, 'conflict_n']
             self.is_norm_scale = False
+            
+        elif metric == 'Number of Revisions':
+            df['revisions_n'] = df[('revisions', 'sum')]
+            sel = df['revisions_n'] != 0
+            y = df.loc[sel, 'revisions_n']
+            self.is_norm_scale = False
 
         elif metric == 'Total':
             df['total_n'] = df[('total', 'sum')]
