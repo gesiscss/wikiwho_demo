@@ -197,7 +197,7 @@ class WikipediaAPI(API):
         Returns:
             dict: Description
         """
-        url = f'{self.base}action=opensearch&search={search_query}&limit=1&namespace=0&format=json'
+        url = f'{self.base}action=opensearch&search={quote_plus(search_query)}&limit=1&namespace=0&format=json'
 
         return self.request(url)
 
