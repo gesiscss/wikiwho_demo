@@ -8,6 +8,7 @@ import numpy as np
 from .api import API, DataView
 from .utils import chunks
 from itertools import chain
+from urllib.parse import quote_plus
 
 
 class WikipediaDV(DataView):
@@ -159,7 +160,7 @@ class WikipediaAPI(API):
         if isinstance(page, (int, np.integer)):
             url = f'{self.base}action=query&pageids={page}&format=json'
         elif isinstance(page, str):
-            url = f'{self.base}action=query&titles={page}&format=json'
+            url = f'{self.base}action=query&titles={quote_plus(page)}&format=json'
 
         return self.request(url)
 
@@ -183,7 +184,7 @@ class WikipediaAPI(API):
         if isinstance(editor, (int, np.integer)):
             url = f'{self.base}action=query&list=users&ususerids={editor}&usprop=blockinfo|editcount|registration|gender&format=json'
         elif isinstance(editor, str):
-            url = f'{self.base}action=query&list=users&ususers={editor}&usprop=blockinfo|editcount|registration|gender&format=json'
+            url = f'{self.base}action=query&list=users&ususers={quote_plus(editor)}&usprop=blockinfo|editcount|registration|gender&format=json'
 
         return self.request(url)
 
@@ -202,7 +203,7 @@ class WikipediaAPI(API):
 
     def get_editors(self, editors: list) -> dict:
 
-        editors_str = "|".join(str(x) for x in editors)
+        editors_str = "|".join(quote_plus(str(x)) for x in editors)
 
         if isinstance(editors[0], (int, np.integer)):
             url = f'{self.base}action=query&list=users&ususerids={editors_str}&usprop=blockinfo|editcount|registration|gender&format=json'
